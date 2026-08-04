@@ -1,0 +1,28 @@
+# Backend
+
+/routes/disasters.js @mayukhibnul-sudo
+/controllers/disasterController.js @mayukhibnul-sudo
+/models/Disaster.js @mayukhibnul-sudo
+/routes/volunteers.js @ZI-Tasin
+/controllers/volunteerController.js @ZI-Tasin
+/models/Volunteer.js @ZI-Tasin
+/routes/donations.js @fahimsna
+/controllers/donationController.js @fahimsna
+/models/Donation.js @fahimsna
+/routes/notifications.js @DERINEXUS
+/controllers/notificationController.js @DERINEXUS
+/models/Notification.js @DERINEXUS
+
+# Shared core files — gated by the repo admin (M2)
+
+/server.js @ZI-Tasin
+/app.js @ZI-Tasin
+/middleware/auth.js @ZI-Tasin
+/src/App.jsx @ZI-Tasin
+
+# Frontend
+
+/src/components/member1/ @mayukhibnul-sudo
+/src/components/member2/ @ZI-Tasin
+/src/components/member3/ @fahimsna
+/src/components/member4/ @DERINEXUS
