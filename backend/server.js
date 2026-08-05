@@ -9,14 +9,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Temporary test route (remove later)
-app.post("/test", (req, res) => {
-  console.log("TEST ROUTE HIT");
-  res.json({
-    message: "Express is working",
-  });
-});
-
 // Routes
 app.use("/api/volunteers", require("./routes/volunteerRoutes"));
 app.use("/api/weather", require("./routes/weatherRoutes"));
