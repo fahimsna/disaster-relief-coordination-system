@@ -21,7 +21,6 @@ app.post("/test", (req, res) => {
 app.use("/api/volunteers", require("./routes/volunteerRoutes"));
 app.use("/api/weather", require("./routes/weatherRoutes"));
 app.use("/api/auth", require("./routes/authRoutes"));
-app.use("/api/test", require("./routes/testRoutes"));
 
 mongoose
   .connect(process.env.MONGO_URI)
