@@ -1,5 +1,6 @@
 require("dotenv").config();
-
+const dns = require('node:dns');
+dns.setServers(['8.8.8.8', '8.8.4.4']);
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
@@ -15,6 +16,7 @@ app.use("/api/donations/webhook", express.raw({ type: "application/json" }));
 app.use(express.json());
 
 // Routes
+app.use('/api/reports', require('./routes/reportRoutes'));
 app.use("/api/volunteers", require("./routes/volunteerRoutes"));
 app.use("/api/weather", require("./routes/weatherRoutes"));
 app.use("/api/auth", require("./routes/authRoutes"));
