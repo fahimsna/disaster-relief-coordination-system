@@ -7,6 +7,7 @@ import Dashboard from "./pages/Dashboard";
 import VolunteerRegistration from "./pages/VolunteerRegistration";
 import CampaignList from "./pages/CampaignList";
 import CampaignDetails from "./pages/CampaignDetails";
+import MyDonations from "./pages/MyDonations";
 
 export default function App() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
           <Route path="/" element={<VolunteerRegistration />} />
           <Route path="/campaigns" element={<CampaignList />} />
           <Route path="/campaigns/:id" element={<CampaignDetails />} />
+          <Route path="/donations" element={<MyDonations />} />
           <Route
             path="/dashboard"
             element={

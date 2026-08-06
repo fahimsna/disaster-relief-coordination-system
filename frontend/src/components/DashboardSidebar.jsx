@@ -1,7 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-const DashboardSidebar = () => {
+export default function DashboardSidebar() {
   const { logout } = useAuth();
 
   const menuItems = [
@@ -28,10 +28,23 @@ const DashboardSidebar = () => {
   ];
 
   return (
-    <aside className="min-h-screen w-64 bg-[#393E46] px-5 py-6 text-white">
-      <h1 className="mb-10 text-xl font-bold tracking-wide">DRRCS</h1>
+    <aside
+      className="
+      hidden
+      md:flex
+      md:min-h-screen
+      md:w-64
+      flex-col
+      bg-[#30475E]
+      px-5
+      py-6
+      text-white
+      shadow-lg
+      "
+    >
+      {/* Navigation */}
 
-      <nav className="space-y-2">
+      <nav className="flex-1 space-y-2">
         {menuItems.map((item) => (
           <NavLink
             key={item.path}
@@ -44,14 +57,13 @@ const DashboardSidebar = () => {
               py-3
               text-sm
               font-medium
-              transition
+              transition-all
 
               ${
                 isActive
-                  ? "bg-[#00ADB5] text-white"
-                  : "text-gray-200 hover:bg-[#222831]"
+                  ? "bg-[#00ADB5] text-white shadow-md"
+                  : "text-white/90 hover:bg-[#222831]"
               }
-
               `
             }
           >
@@ -60,13 +72,16 @@ const DashboardSidebar = () => {
         ))}
       </nav>
 
+      {/* Logout */}
+
       <button
         onClick={logout}
         className="
-        mt-10
+        mt-8
         w-full
         rounded-xl
         bg-[#00ADB5]
+        px-4
         py-3
         text-sm
         font-semibold
@@ -78,6 +93,4 @@ const DashboardSidebar = () => {
       </button>
     </aside>
   );
-};
-
-export default DashboardSidebar;
+}
