@@ -5,6 +5,8 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import VolunteerRegistration from "./pages/VolunteerRegistration";
+import CampaignList from "./pages/CampaignList";
+import CampaignDetails from "./pages/CampaignDetails";
 
 export default function App() {
   return (
@@ -16,6 +18,8 @@ export default function App() {
           {/* keeping the OCR wizard reachable while routing settles */}
           <Route path="/register" element={<VolunteerRegistration />} />
           <Route path="/" element={<VolunteerRegistration />} />
+          <Route path="/campaigns" element={<CampaignList />} />
+          <Route path="/campaigns/:id" element={<CampaignDetails />} />
           <Route
             path="/dashboard"
             element={
