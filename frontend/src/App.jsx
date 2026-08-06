@@ -10,6 +10,9 @@ import CampaignDetails from "./pages/CampaignDetails";
 import MyDonations from "./pages/MyDonations";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCancel from "./pages/PaymentCancel";
+import AdminCampaigns from "./pages/admin/AdminCampaigns";
+import CreateCampaign from "./pages/admin/CreateCampaign";
+import EditCampaign from "./pages/admin/EditCampaign";
 
 export default function App() {
   return (
@@ -28,10 +31,34 @@ export default function App() {
 
           <Route path="/payment-cancel" element={<PaymentCancel />} />
           <Route
+            path="/admin/campaigns"
+            element={
+              <ProtectedRoute role="admin">
+                <AdminCampaigns />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/dashboard"
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/campaigns/create"
+            element={
+              <ProtectedRoute role="admin">
+                <CreateCampaign />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/campaigns/edit/:id"
+            element={
+              <ProtectedRoute role="admin">
+                <EditCampaign />
               </ProtectedRoute>
             }
           />
