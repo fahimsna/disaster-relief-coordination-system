@@ -1,0 +1,14 @@
+@import "tailwindcss"; /* pulls in Tailwind's base/components/utilities (v4 syntax) */
+
+/* Theme tokens matched to the Figma design (DRRCS navy navbar + terracotta accent) */
+@theme {
+  --color-brand-navy: #1b3a5c;
+  --color-brand-navy-dark: #14293f;
+  --color-brand-accent: #cc7a52;
+  --color-brand-accent-light: #f4e4dc;
+  --color-brand-bg: #f6f5fa;
+}
+
+body {
+  background-color: var(--color-brand-bg);
+}
