@@ -2,11 +2,8 @@ import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import DashboardSidebar from "../components/DashboardSidebar";
 import { getMyDonations } from "../api/donationApi";
-import { useAuth } from "../context/AuthContext";
 
 export default function MyDonations() {
-  const { user } = useAuth();
-
   const [donations, setDonations] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -29,57 +26,137 @@ export default function MyDonations() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-[#F5F7FA]">
       <Navbar />
 
       <div className="flex">
         <DashboardSidebar />
 
-        <main className="flex-1 p-8">
-          <h1 className="text-3xl font-bold text-slate-800">My Donations</h1>
+        <main className="flex-1 p-4 sm:p-6 lg:p-8">
+          {/* Header */}
 
-          <p className="mt-2 text-gray-500">Track your donation history</p>
+          <div>
+            <h1 className="text-3xl font-bold text-[#222831]">My Donations</h1>
 
-          {loading ? (
-            <p className="mt-8">Loading donations...</p>
-          ) : donations.length === 0 ? (
-            <div className="mt-8 rounded-xl bg-white p-8 shadow">
-              <p className="text-gray-500">
-                You haven't made any donations yet.
-              </p>
+            <p className="mt-2 text-gray-500">
+              Track your contribution history
+            </p>
+          </div>
+
+          {/* Loading */}
+
+          {loading && (
+            <p className="mt-8 text-gray-500">Loading donations...</p>
+          )}
+
+          {/* Empty */}
+
+          {!loading && donations.length === 0 && (
+            <div
+              className="
+              mt-8
+              rounded-2xl
+              bg-white
+              p-8
+              shadow-sm
+            "
+            >
+              <p className="text-gray-500">No donations found.</p>
             </div>
-          ) : (
-            <div className="mt-8 grid gap-5">
+          )}
+
+          {/* Donation Cards */}
+
+          {!loading && donations.length > 0 && (
+            <div
+              className="
+              mt-8
+              grid
+              grid-cols-1
+              gap-6
+              sm:grid-cols-2
+              xl:grid-cols-3
+              "
+            >
               {donations.map((donation) => (
                 <div
                   key={donation._id}
-                  className="rounded-xl bg-white p-6 shadow"
+                  className="
+                  rounded-2xl
+                  bg-white
+                  p-6
+                  shadow-sm
+                  transition
+                  duration-300
+                  hover:-translate-y-1
+                  hover:shadow-xl
+                  "
                 >
-                  <h2 className="text-xl font-bold">
+                  {/* Campaign Title */}
+
+                  <h2
+                    className="
+                    text-xl
+                    font-bold
+                    text-[#222831]
+                  "
+                  >
                     {donation.campaign?.title || "Campaign"}
                   </h2>
 
-                  <div className="mt-3 grid grid-cols-3 gap-4 text-sm">
-                    <div>
-                      <p className="text-gray-500">Amount</p>
+                  {/* Details */}
 
-                      <p className="font-semibold">৳ {donation.amount}</p>
+                  <div
+                    className="
+                    mt-6
+                    space-y-5
+                  "
+                  >
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Amount</span>
+
+                      <span
+                        className="
+                        text-lg
+                        font-bold
+                        text-[#00ADB5]
+                      "
+                      >
+                        ৳ {donation.amount}
+                      </span>
                     </div>
 
-                    <div>
-                      <p className="text-gray-500">Status</p>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-500">Status</span>
 
-                      <p className="font-semibold text-green-600">
-                        {donation.status}
-                      </p>
+                      <span
+                        className="
+                        rounded-full
+                        bg-green-100
+                        px-3
+                        py-1
+                        text-xs
+                        font-semibold
+                        text-green-700
+                        "
+                      >
+                        {donation.paymentStatus}
+                      </span>
                     </div>
 
-                    <div>
-                      <p className="text-gray-500">Date</p>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Date</span>
 
-                      <p className="font-semibold">
-                        {new Date(donation.createdAt).toLocaleDateString()}
-                      </p>
+                      <span className="font-medium text-gray-700">
+                        {new Date(donation.createdAt).toLocaleDateString(
+                          "en-GB",
+                          {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                          },
+                        )}
+                      </span>
                     </div>
                   </div>
                 </div>

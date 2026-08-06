@@ -8,6 +8,8 @@ import VolunteerRegistration from "./pages/VolunteerRegistration";
 import CampaignList from "./pages/CampaignList";
 import CampaignDetails from "./pages/CampaignDetails";
 import MyDonations from "./pages/MyDonations";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentCancel from "./pages/PaymentCancel";
 
 export default function App() {
   return (
@@ -22,6 +24,9 @@ export default function App() {
           <Route path="/campaigns" element={<CampaignList />} />
           <Route path="/campaigns/:id" element={<CampaignDetails />} />
           <Route path="/donations" element={<MyDonations />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
+
+          <Route path="/payment-cancel" element={<PaymentCancel />} />
           <Route
             path="/dashboard"
             element={
