@@ -14,6 +14,9 @@ const CampaignDetails = () => {
   const [campaign, setCampaign] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Sidebar state
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   useEffect(() => {
     const fetchCampaign = async () => {
       try {
@@ -36,6 +39,7 @@ const CampaignDetails = () => {
 
       if (!token) {
         navigate("/login");
+
         return;
       }
 
@@ -56,10 +60,24 @@ const CampaignDetails = () => {
   if (loading) {
     return (
       <>
-        <Navbar />
+        <Navbar setSidebarOpen={setSidebarOpen} />
 
-        <div className="flex min-h-screen items-center justify-center">
-          <p className="text-xl font-semibold">Loading campaign...</p>
+        <div
+          className="
+          flex
+          min-h-screen
+          items-center
+          justify-center
+        "
+        >
+          <p
+            className="
+            text-xl
+            font-semibold
+          "
+          >
+            Loading campaign...
+          </p>
         </div>
       </>
     );
@@ -68,10 +86,24 @@ const CampaignDetails = () => {
   if (!campaign) {
     return (
       <>
-        <Navbar />
+        <Navbar setSidebarOpen={setSidebarOpen} />
 
-        <div className="flex min-h-screen items-center justify-center">
-          <p className="text-xl font-semibold">Campaign not found</p>
+        <div
+          className="
+          flex
+          min-h-screen
+          items-center
+          justify-center
+        "
+        >
+          <p
+            className="
+            text-xl
+            font-semibold
+          "
+          >
+            Campaign not found
+          </p>
         </div>
       </>
     );
@@ -84,22 +116,32 @@ const CampaignDetails = () => {
   const percentage = target > 0 ? Math.min((raised / target) * 100, 100) : 0;
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA]">
-      <Navbar />
+    <div
+      className="
+      min-h-screen
+      bg-[#F5F7FA]
+    "
+    >
+      <Navbar setSidebarOpen={setSidebarOpen} />
 
-      <div className="flex">
-        {/* Dashboard Menu */}
-
-        <DashboardSidebar />
-
-        {/* Main Content */}
+      <div
+        className="
+        flex
+        min-h-screen
+      "
+      >
+        <DashboardSidebar open={sidebarOpen} setOpen={setSidebarOpen} />
 
         <main
           className="
           flex-1
+          overflow-x-hidden
+
           px-4
           py-6
+
           sm:px-6
+
           lg:px-8
           "
         >
@@ -128,6 +170,7 @@ const CampaignDetails = () => {
                 h-[280px]
                 w-full
                 object-cover
+
                 sm:h-[400px]
                 "
               />
@@ -138,18 +181,22 @@ const CampaignDetails = () => {
               mt-8
               grid
               gap-8
+
               lg:grid-cols-3
               "
             >
-              {/* Campaign Information */}
+              {/* Campaign Info */}
 
               <div className="lg:col-span-2">
                 <div
                   className="
                   rounded-3xl
                   bg-white
+
                   p-6
+
                   shadow-sm
+
                   sm:p-8
                   "
                 >
@@ -167,6 +214,7 @@ const CampaignDetails = () => {
                       bg-[#00ADB5]
                       px-4
                       py-2
+
                       text-sm
                       font-semibold
                       text-white
@@ -179,8 +227,10 @@ const CampaignDetails = () => {
                       className="
                       rounded-full
                       bg-green-600
+
                       px-4
                       py-2
+
                       text-sm
                       font-semibold
                       text-white
@@ -193,9 +243,11 @@ const CampaignDetails = () => {
                   <h1
                     className="
                     mt-6
+
                     text-3xl
                     font-bold
                     text-[#222831]
+
                     sm:text-4xl
                     "
                   >
@@ -249,16 +301,19 @@ const CampaignDetails = () => {
                 </div>
               </div>
 
-              {/* Donation Section */}
+              {/* Donation Card */}
 
               <div>
                 <div
                   className="
                   sticky
                   top-6
+
                   rounded-3xl
                   bg-white
+
                   p-6
+
                   shadow-sm
                   "
                 >
@@ -285,8 +340,11 @@ const CampaignDetails = () => {
                         className="
                         h-full
                         rounded-full
+
                         bg-gradient-to-r
+
                         from-[#00ADB5]
+
                         to-blue-500
                         "
                         style={{
@@ -298,8 +356,11 @@ const CampaignDetails = () => {
                     <p
                       className="
                       mt-3
+
                       text-right
+
                       font-semibold
+
                       text-[#00ADB5]
                       "
                     >
@@ -310,7 +371,9 @@ const CampaignDetails = () => {
                   <div
                     className="
                     mt-6
+
                     flex
+
                     justify-between
                     "
                   >
@@ -322,7 +385,7 @@ const CampaignDetails = () => {
                         text-xl
                         font-bold
                         text-green-600
-                        "
+                      "
                       >
                         ৳ {raised.toLocaleString()}
                       </p>
@@ -331,12 +394,7 @@ const CampaignDetails = () => {
                     <div className="text-right">
                       <p className="text-sm text-gray-500">Goal</p>
 
-                      <p
-                        className="
-                        text-xl
-                        font-bold
-                        "
-                      >
+                      <p className="text-xl font-bold">
                         {target ? `৳ ${target.toLocaleString()}` : "Not set"}
                       </p>
                     </div>
@@ -346,13 +404,21 @@ const CampaignDetails = () => {
                     onClick={handleDonate}
                     className="
                     mt-8
+
                     w-full
+
                     rounded-xl
+
                     bg-[#00ADB5]
+
                     py-4
+
                     font-bold
+
                     text-white
+
                     transition
+
                     hover:bg-[#0097A0]
                     "
                   >

@@ -1,11 +1,16 @@
 import { useEffect, useState } from "react";
+
 import Navbar from "../components/Navbar";
 import DashboardSidebar from "../components/DashboardSidebar";
+
 import { getMyDonations } from "../api/donationApi";
 
 export default function MyDonations() {
   const [donations, setDonations] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Sidebar state
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     const fetchDonations = async () => {
@@ -27,18 +32,45 @@ export default function MyDonations() {
 
   return (
     <div className="min-h-screen bg-[#F5F7FA]">
-      <Navbar />
+      <Navbar setSidebarOpen={setSidebarOpen} />
 
-      <div className="flex">
-        <DashboardSidebar />
+      <div className="flex min-h-screen">
+        <DashboardSidebar open={sidebarOpen} setOpen={setSidebarOpen} />
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8">
+        <main
+          className="
+          flex-1
+
+          overflow-x-hidden
+
+          p-4
+
+          sm:p-6
+
+          lg:p-8
+          "
+        >
           {/* Header */}
 
           <div>
-            <h1 className="text-3xl font-bold text-[#222831]">My Donations</h1>
+            <h1
+              className="
+              text-2xl
+              font-bold
+              text-[#222831]
 
-            <p className="mt-2 text-gray-500">
+              sm:text-3xl
+              "
+            >
+              My Donations
+            </h1>
+
+            <p
+              className="
+              mt-2
+              text-gray-500
+              "
+            >
               Track your contribution history
             </p>
           </div>
@@ -49,17 +81,21 @@ export default function MyDonations() {
             <p className="mt-8 text-gray-500">Loading donations...</p>
           )}
 
-          {/* Empty */}
+          {/* Empty State */}
 
           {!loading && donations.length === 0 && (
             <div
               className="
               mt-8
+
               rounded-2xl
+
               bg-white
+
               p-8
+
               shadow-sm
-            "
+              "
             >
               <p className="text-gray-500">No donations found.</p>
             </div>
@@ -71,10 +107,15 @@ export default function MyDonations() {
             <div
               className="
               mt-8
+
               grid
+
               grid-cols-1
+
               gap-6
+
               sm:grid-cols-2
+
               xl:grid-cols-3
               "
             >
@@ -83,23 +124,36 @@ export default function MyDonations() {
                   key={donation._id}
                   className="
                   rounded-2xl
+
                   bg-white
-                  p-6
+
+                  p-5
+
                   shadow-sm
+
                   transition
+
                   duration-300
+
                   hover:-translate-y-1
+
                   hover:shadow-xl
+
+                  sm:p-6
                   "
                 >
-                  {/* Campaign Title */}
+                  {/* Campaign */}
 
                   <h2
                     className="
-                    text-xl
+                    text-lg
+
                     font-bold
+
                     text-[#222831]
-                  "
+
+                    sm:text-xl
+                    "
                   >
                     {donation.campaign?.title || "Campaign"}
                   </h2>
@@ -109,34 +163,59 @@ export default function MyDonations() {
                   <div
                     className="
                     mt-6
+
                     space-y-5
-                  "
+                    "
                   >
-                    <div className="flex justify-between">
+                    <div
+                      className="
+                      flex
+
+                      justify-between
+
+                      gap-4
+                      "
+                    >
                       <span className="text-gray-500">Amount</span>
 
                       <span
                         className="
-                        text-lg
                         font-bold
+
                         text-[#00ADB5]
-                      "
+                        "
                       >
                         ৳ {donation.amount}
                       </span>
                     </div>
 
-                    <div className="flex justify-between items-center">
+                    <div
+                      className="
+                      flex
+
+                      items-center
+
+                      justify-between
+
+                      gap-4
+                      "
+                    >
                       <span className="text-gray-500">Status</span>
 
                       <span
                         className="
                         rounded-full
+
                         bg-green-100
+
                         px-3
+
                         py-1
+
                         text-xs
+
                         font-semibold
+
                         text-green-700
                         "
                       >
@@ -144,10 +223,26 @@ export default function MyDonations() {
                       </span>
                     </div>
 
-                    <div className="flex justify-between">
+                    <div
+                      className="
+                      flex
+
+                      justify-between
+
+                      gap-4
+                      "
+                    >
                       <span className="text-gray-500">Date</span>
 
-                      <span className="font-medium text-gray-700">
+                      <span
+                        className="
+                        text-right
+
+                        font-medium
+
+                        text-gray-700
+                        "
+                      >
                         {new Date(donation.createdAt).toLocaleDateString(
                           "en-GB",
                           {
