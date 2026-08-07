@@ -19,6 +19,7 @@ import AdminCampaigns from "./pages/admin/AdminCampaigns";
 import CreateCampaign from "./pages/admin/CreateCampaign";
 import EditCampaign from "./pages/admin/EditCampaign";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import VolunteerProfile from "./pages/VolunteerProfile";
 
 export default function App() {
   return (
@@ -52,6 +53,18 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Volunteer Profile Panel -- protected, visible to any logged-in user. */}
+          {/* The page will redirect to /register if the user hasn't completed onboarding yet. */}
+
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <VolunteerProfile />
               </ProtectedRoute>
             }
           />
