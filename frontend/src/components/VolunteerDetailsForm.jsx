@@ -10,7 +10,11 @@ import {
 
 // Step 2 of the wizard: the OCR-prefilled confirmation form.
 // `ocrData` = { fullName, idNumber } handed down from the upload step.
-export default function VolunteerDetailsForm({ ocrData, onSubmit }) {
+export default function VolunteerDetailsForm({
+  ocrData,
+  onSubmit,
+  isSubmitting = false,
+}) {
   // form state, seeded with the OCR result
   const [fullName, setFullName] = useState(ocrData.fullName);
   const [idNumber, setIdNumber] = useState(ocrData.idNumber);
@@ -126,11 +130,11 @@ export default function VolunteerDetailsForm({ ocrData, onSubmit }) {
 
       <button
         type="submit"
-        disabled={!isValid}
+        disabled={!isValid || isSubmitting}
         className="mt-6 w-full rounded-lg bg-brand-accent py-2.5 text-sm font-semibold text-white
           transition disabled:cursor-not-allowed disabled:opacity-50 hover:bg-brand-accent/90"
       >
-        Complete Registration
+        {isSubmitting ? "Submitting…" : "Complete Registration"}
       </button>
     </form>
   );
