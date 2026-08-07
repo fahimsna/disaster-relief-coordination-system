@@ -14,6 +14,10 @@ export default function AdminSidebar({ open, setOpen }) {
       path: "/admin/campaigns",
     },
     {
+      name: "Alert Configuration",
+      path: "/admin/alerts",
+    },
+    {
       name: "Donation Analytics",
       path: "/admin/analytics",
     },
