@@ -1,0 +1,80 @@
+[
+  {
+    "name": "Barishal",
+    "districts": [
+      {
+        "name": "Barguna",
+        "subdistricts": [
+          "Amtali Upazila",
+          "Bamna Upazila",
+          "Barguna Sadar Upazila",
+          "Betagi Upazila",
+          "Pathorghata Upazila",
+          "Taltali Upazila"
+        ]
+      },
+      {
+        "name": "Barishal",
+        "subdistricts": [
+          "Barishal City Corporation",
+          "Agailjhara Upazila",
+          "Babuganj Upazila",
+          "Bakerganj Upazila",
+          "Banaripara Upazila",
+          "Gournadi Upazila",
+          "Hizla Upazila",
+          "Barishal Sadar Upazila",
+          "Mehendiganj Upazila",
+          "Muladi Upazila",
+          "Wazirpur Upazila"
+        ]
+      },
+      {
+        "name": "Bhola",
+        "subdistricts": [
+          "Bhola Sadar Upazila",
+          "Borhanuddin Upazila",
+          "Doulatkhan Upazila",
+          "Lalmohan Upazila",
+          "Monpura Upazila",
+          "Tazumuddin Upazila",
+          "Charfesson Upazila"
+        ]
+      },
+      {
+        "name": "Jhalakathi",
+        "subdistricts": [
+          "Jhalakathi Sadar Upazila",
+          "Nalchity Upazila",
+          "Kathalia Upazila",
+          "Rajapur Upazila"
+        ]
+      },
+      {
+        "name": "Patuakhali",
+        "subdistricts": [
+          "Bauphal Upazila",
+          "Dashmina Upazila",
+          "Dumki Upazila",
+          "Kalapara Upazila",
+          "Mirzaganj Upazila",
+          "Patuakhali Sadar Upazila",
+          "Rangabali Upazila",
+          "Galachipa Upazila"
+        ]
+      },
+      {
+        "name": "Pirojpur",
+        "subdistricts": [
+          "Bhandaria Upazila",
+          "Kawkhali Upazila",
+          "Mathbaria Upazila",
+          "Nazirpur Upazila",
+          "Pirojpur Sadar Upazila",
+          "Nesarabad Upazila",
+          "Zianagar Upazila"
+        ]
+      }
+    ]
+  }
+]
