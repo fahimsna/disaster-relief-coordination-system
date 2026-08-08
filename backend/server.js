@@ -22,6 +22,7 @@ app.use("/api/weather", require("./routes/weatherRoutes"));
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/campaigns", require("./routes/campaignRoutes"));
 app.use("/api/donations", require("./routes/donationRoutes"));
+app.use("/api/notifications", require("./routes/notificationRoutes"));
 
 mongoose
   .connect(process.env.MONGO_URI)

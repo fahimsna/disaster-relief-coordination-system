@@ -1,5 +1,5 @@
 const DisasterReport = require('../models/disasterReport');
-const ThresholdConfig = require('../models/thresholdconfig');
+const ThresholdConfig = require('../models/thresholdConfig');
 
 /**
  * 1. Submit a New Public Disaster Report (POST /api/reports)
