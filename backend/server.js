@@ -16,8 +16,10 @@ app.use("/api/donations/webhook", express.raw({ type: "application/json" }));
 app.use(express.json());
 
 // Routes
-// app.use('/api/reports', require('./routes/reportRoutes'));
+app.use('/api/reports', require('./routes/reportRoutes'));
 app.use("/api/volunteers", require("./routes/volunteerRoutes"));
+app.use('/api/thresholds', require('./routes/thresholdRoutes'));
+app.use('/api/locations', require('./routes/locationRoutes'));
 app.use("/api/weather", require("./routes/weatherRoutes"));
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/campaigns", require("./routes/campaignRoutes"));
