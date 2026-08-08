@@ -4,7 +4,7 @@ const disasterTypes = ["All", "Flood", "Cyclone", "Earthquake", "Fire"];
 
 const Hero = ({ searchTerm, setSearchTerm, selectedType, setSelectedType }) => {
   return (
-    <section className="border-b border-slate-200 bg-gradient-to-r from-blue-100 via-sky-50 to-cyan-100">
+    <section className="border-b border-slate-200 bg-linear-to-r from-blue-100 via-sky-50 to-cyan-100">
       <div className="mx-auto max-w-7xl px-6 py-14">
         {/* Badge */}
         <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-blue-200 bg-white/80 px-4 py-2 text-sm font-medium text-blue-700 shadow-sm backdrop-blur">
