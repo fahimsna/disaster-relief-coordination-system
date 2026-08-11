@@ -63,6 +63,20 @@ export default function VolunteerProfile() {
     e.preventDefault();
     setIsSaving(true);
     setError("");
+    const phoneRegex = /^(\+8801|01)[3-9]\d{8}$/;
+    const idRegex = /^\d+$/;
+
+    if (!phoneRegex.test(form.phone)) {
+      setError("Please enter a valid Bangladeshi phone number.");
+      setIsSaving(false);
+      return;
+    }
+
+    if (!idRegex.test(form.idNumber)) {
+      setError("ID number must contain only digits.");
+      setIsSaving(false);
+      return;
+    }
     try {
       // only send editable fields -- status is handled by the toggle button, not this form
       const { data } = await api.put("/volunteers/profile", {
