@@ -30,9 +30,16 @@ export default function App() {
 
           <Route path="/signup" element={<Signup />} />
 
-          <Route path="/register" element={<VolunteerRegistration />} />
+          <Route
+            path="/register"
+            element={
+              <ProtectedRoute role="volunteer">
+                <VolunteerRegistration />
+              </ProtectedRoute>
+            }
+          />
 
-          <Route path="/" element={<VolunteerRegistration />} />
+          <Route path="/" element={<Signup />} />
 
           {/* Donor */}
 
@@ -63,7 +70,7 @@ export default function App() {
           <Route
             path="/profile"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute role="volunteer">
                 <VolunteerProfile />
               </ProtectedRoute>
             }
