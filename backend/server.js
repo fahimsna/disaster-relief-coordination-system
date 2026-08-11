@@ -4,6 +4,7 @@ dns.setServers(["8.8.8.8", "8.8.4.4"]);
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
+const fundAllocationRoutes = require("./routes/fundAllocationRoutes");
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use("/api/weather", require("./routes/weatherRoutes"));
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/campaigns", require("./routes/campaignRoutes"));
 app.use("/api/donations", require("./routes/donationRoutes"));
+app.use("/api/fund-allocations", fundAllocationRoutes);
 
 mongoose
   .connect(process.env.MONGO_URI)
