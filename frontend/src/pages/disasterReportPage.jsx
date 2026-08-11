@@ -1,98 +1,114 @@
-import React from 'react';
-import LocationSelector from './LocationSelector';
+import React, { useState } from 'react';
+import DisasterFormSteps from '../components/DisasterFormSteps';
 
-const CRISIS_TYPES = [
-  { id: 'Flood', label: 'Flood', icon: '🌊' },
-  { id: 'Cyclone', label: 'Cyclone', icon: '🌀' },
-  { id: 'Earthquake', label: 'Earthquake', icon: '🏚️' },
-  { id: 'Other', label: 'Other', icon: '➕' },
-];
+export default function DisasterReportPage() {
+  const [formData, setFormData] = useState({
+    crisisType: '',
+    description: '',
+    division: '',
+    district: '',
+    subdistrict: '',
+    manualAddress: '',
+  });
 
-export const DisasterFormSteps = ({
-  formData,
-  setFormData,
-  detectingLocation,
-  handleUseLocation,
-  handleLocationChange,
-  feedback,
-  setFeedback,
-}) => {
+  const [detectingLocation, setDetectingLocation] = useState(false);
+  const [feedback, setFeedback] = useState({ type: '', message: '' });
+
+  const handleUseLocation = () => {
+    if (!navigator.geolocation) {
+      setFeedback({ type: 'error', message: 'Geolocation is not supported.' });
+      return;
+    }
+    setDetectingLocation(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setDetectingLocation(false);
+        setFeedback({ type: 'success', message: 'Location detected successfully!' });
+      },
+      () => {
+        setDetectingLocation(false);
+        setFeedback({ type: 'error', message: 'Unable to retrieve location.' });
+      }
+    );
+  };
+
+  const handleLocationChange = (loc) => {
+    setFormData((prev) => ({
+      ...prev,
+      division: loc?.division || prev.division,
+      district: loc?.district || prev.district,
+      subdistrict: loc?.upazila || prev.subdistrict,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!formData.crisisType) {
+      setFeedback({ type: 'error', message: 'Please select a Crisis Type.' });
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:8000/api/reports', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        setFeedback({ type: 'success', message: 'Report submitted successfully!' });
+        // Reset form fields upon success
+        setFormData({
+          crisisType: '',
+          description: '',
+          division: '',
+          district: '',
+          subdistrict: '',
+          manualAddress: '',
+        });
+      } else {
+        setFeedback({ type: 'error', message: 'Server returned error.' });
+      }
+    } catch (err) {
+      setFeedback({ type: 'error', message: 'Cannot connect to backend server on port 8000.' });
+    }
+  };
+
   return (
-    <>
-      {/* Step 1: Crisis Type */}
-      <div>
-        <label className="block text-sm font-semibold text-gray-800 mb-2">
-          Step 1: Crisis Type <span className="text-red-500">*</span>
-        </label>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {CRISIS_TYPES.map((type) => (
-            <button
-              key={type.id}
-              type="button"
-              onClick={() => {
-                setFormData((prev) => ({ ...prev, crisisType: type.id }));
-                if (feedback.type === 'error') setFeedback({ type: '', message: '' });
-              }}
-              className={`flex flex-col items-center justify-center py-4 rounded-xl border transition-all ${
-                formData.crisisType === type.id
-                  ? 'border-[#00b4d8] bg-sky-50 text-[#00b4d8] font-bold shadow-sm'
-                  : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
-              }`}
-            >
-              <span className="text-2xl mb-1">{type.icon}</span>
-              <span className="text-xs">{type.label}</span>
-            </button>
-          ))}
-        </div>
-      </div>
+    <div className="max-w-2xl mx-auto p-6 bg-white shadow-md rounded-2xl my-8">
+      <h1 className="text-2xl font-bold text-gray-800 mb-6">Report a Disaster</h1>
 
-      {/* Step 2: Description */}
-      <div>
-        <label className="block text-sm font-semibold text-gray-800 mb-1.5">
-          Step 2: Describe the Situation <span className="text-red-500">*</span>
-        </label>
-        <textarea
-          rows="4"
-          required
-          placeholder="Please enter a detailed description of the event, observed conditions and any immediate needs"
-          value={formData.description}
-          onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
-          className="w-full p-3 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#00b4d8]"
+      <form onSubmit={handleSubmit}>
+        <DisasterFormSteps
+          formData={formData}
+          setFormData={setFormData}
+          detectingLocation={detectingLocation}
+          handleUseLocation={handleUseLocation}
+          handleLocationChange={handleLocationChange}
+          feedback={feedback}
+          setFeedback={setFeedback}
         />
-      </div>
 
-      {/* Step 3: Geographic Location */}
-      <div>
-        <label className="block text-sm font-semibold text-gray-800 mb-2">
-          Step 3: Geographic Location <span className="text-red-500">*</span>
-        </label>
+        {feedback.message && (
+          <div
+            className={`p-3 text-sm rounded-lg my-4 ${
+              feedback.type === 'error'
+                ? 'bg-red-50 text-red-600 border border-red-200'
+                : 'bg-green-50 text-green-600 border border-green-200'
+            }`}
+          >
+            {feedback.message}
+          </div>
+        )}
 
         <button
-          type="button"
-          onClick={handleUseLocation}
-          disabled={detectingLocation}
-          className="w-full py-2.5 bg-sky-50 hover:bg-sky-100 text-[#00b4d8] border border-sky-200 font-semibold rounded-lg text-sm mb-4 transition disabled:opacity-50"
+          type="submit"
+          className="w-full mt-6 py-3 bg-[#00b4d8] text-white font-bold rounded-lg hover:bg-[#0096c7] transition cursor-pointer"
         >
-          📍 {detectingLocation ? 'Detecting Location...' : 'Use My Location'}
+          Submit Report
         </button>
-
-        <div className="mb-3">
-          <LocationSelector
-            division={formData.division}
-            district={formData.district}
-            upazila={formData.subdistrict}
-            onLocationChange={handleLocationChange}
-          />
-        </div>
-
-        <input
-          type="text"
-          placeholder="Enter Address or Landmarks manually"
-          value={formData.manualAddress}
-          onChange={(e) => setFormData((prev) => ({ ...prev, manualAddress: e.target.value }))}
-          className="w-full p-3 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#00b4d8]"
-        />
-      </div>
-    </>
+      </form>
+    </div>
   );
-};
+}

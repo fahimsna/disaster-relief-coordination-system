@@ -22,7 +22,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import VolunteerProfile from "./pages/VolunteerProfile";
 
 // Public Disaster Reporting & Admin Verification Pages
-import DisasterReportPage from "./pages/DisasterReportPage";
+import DisasterReportPage from "./pages/disasterReportPage.jsx";
 import AdminVerificationPage from "./pages/admin/AdminVerificationPage";
 import SeverityThresholdPage from './pages/admin/SeverityThresholdPage';
 
