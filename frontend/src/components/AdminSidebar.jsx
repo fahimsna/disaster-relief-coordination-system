@@ -30,51 +30,56 @@ export default function AdminSidebar({ open, setOpen }) {
         <div
           onClick={() => setOpen(false)}
           className="
-          fixed
-          inset-0
-          z-40
-          bg-black/40
-          md:hidden
+            fixed
+            inset-0
+            z-40
+            bg-black/40
+            md:hidden
           "
         />
       )}
 
       <aside
         className={`
-        fixed
-        left-0
-        top-0
-        z-50
-        flex
-        h-screen
-        w-72
-        flex-col
-        bg-[#30475E]
-        px-5
-        py-6
-        text-white
-        shadow-lg
+          fixed
+          left-0
+          top-0
+          z-50
 
-        transition-transform
-        duration-300
+          flex
+          h-screen
+          w-72
+          flex-col
 
-        md:static
-        md:flex
-        md:translate-x-0
+          bg-[#30475E]
+          px-5
+          py-6
+          text-white
+          shadow-lg
 
-        ${open ? "translate-x-0" : "-translate-x-full"}
+          transition-transform
+          duration-300
+
+          md:static
+          md:h-auto
+          md:min-h-full
+          md:translate-x-0
+
+          ${open ? "translate-x-0" : "-translate-x-full"}
         `}
       >
+        {/* Logo / Title */}
         <h2
           className="
-          mb-8
-          text-xl
-          font-bold
+            mb-8
+            text-xl
+            font-bold
           "
         >
           DRRCS Admin
         </h2>
 
+        {/* Navigation */}
         <nav className="flex-1 space-y-2">
           {menuItems.map((item) => (
             <NavLink
@@ -83,16 +88,16 @@ export default function AdminSidebar({ open, setOpen }) {
               onClick={() => setOpen(false)}
               className={({ isActive }) =>
                 `
-              block
-              rounded-xl
-              px-4
-              py-3
-              text-sm
-              font-medium
-              transition
+                  block
+                  rounded-xl
+                  px-4
+                  py-3
+                  text-sm
+                  font-medium
+                  transition
 
-              ${isActive ? "bg-[#00ADB5] shadow-md" : "hover:bg-[#222831]"}
-              `
+                  ${isActive ? "bg-[#00ADB5] shadow-md" : "hover:bg-[#222831]"}
+                `
               }
             >
               {item.name}
@@ -100,15 +105,17 @@ export default function AdminSidebar({ open, setOpen }) {
           ))}
         </nav>
 
+        {/* Logout */}
         <button
           onClick={logout}
           className="
-          rounded-xl
-          bg-[#00ADB5]
-          px-4
-          py-3
-          font-semibold
-          hover:bg-[#0097A0]
+            rounded-xl
+            bg-[#00ADB5]
+            px-4
+            py-3
+            font-semibold
+            transition
+            hover:bg-[#0097A0]
           "
         >
           Log Out
