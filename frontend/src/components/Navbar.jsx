@@ -1,6 +1,3 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-
 export default function Navbar({ setSidebarOpen }) {
   return (
     <header className="bg-brand-navy px-6 py-3">
@@ -46,14 +43,6 @@ export default function Navbar({ setSidebarOpen }) {
           <span className="cursor-pointer hover:text-white">Home</span>
 
           <span className="cursor-pointer hover:text-white">My Missions</span>
-
-          {/* Report Disaster Link Button */}
-          <Link
-            to="/report"
-            className="rounded-lg bg-[#00b4d8] px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-[#0096c7]"
-          >
-            Report Disaster
-          </Link>
 
           <span className="cursor-pointer hover:text-white">Profile</span>
 

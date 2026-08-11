@@ -10,14 +10,6 @@ export default function AdminSidebar({ open, setOpen }) {
       path: "/admin/dashboard",
     },
     {
-      name: "Report Verification",
-      path: "/admin/report-verification",
-    },
-    {
-      name: "Severity Threshold",
-      path: "/admin/severity-threshold",
-    },
-    {
       name: "Manage Campaigns",
       path: "/admin/campaigns",
     },

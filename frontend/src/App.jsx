@@ -21,11 +21,6 @@ import EditCampaign from "./pages/admin/EditCampaign";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import VolunteerProfile from "./pages/VolunteerProfile";
 
-// Public Disaster Reporting & Admin Verification Pages
-import DisasterReportPage from "./pages/DisasterReportPage";
-import AdminVerificationPage from "./pages/admin/AdminVerificationPage";
-import SeverityThresholdPage from './pages/admin/SeverityThresholdPage';
-
 export default function App() {
   return (
     <BrowserRouter>
@@ -38,9 +33,6 @@ export default function App() {
           <Route path="/register" element={<VolunteerRegistration />} />
 
           <Route path="/" element={<VolunteerRegistration />} />
-
-          {/* Public Disaster Reporting */}
-          <Route path="/report" element={<DisasterReportPage />} />
 
           {/* Donor */}
 
@@ -84,26 +76,6 @@ export default function App() {
             element={
               <ProtectedRoute role="admin">
                 <AdminDashboard />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Admin Report Verification Queue */}
-          <Route
-            path="/admin/report-verification"
-            element={
-              <ProtectedRoute role="admin">
-                <AdminVerificationPage />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Admin Global Severity Thresholds */}
-          <Route
-            path="/admin/severity-threshold"
-            element={
-              <ProtectedRoute role="admin">
-                <SeverityThresholdPage />
               </ProtectedRoute>
             }
           />
