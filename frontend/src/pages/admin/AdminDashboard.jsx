@@ -6,6 +6,7 @@ import AdminSidebar from "../../components/AdminSidebar";
 import { useAuth } from "../../context/AuthContext";
 
 import { createFundAllocation } from "../../api/fundAllocationApi";
+import { getFundAllocationDashboard } from "../../api/fundAllocationApi";
 import { getCampaigns } from "../../api/campaignApi";
 
 export default function AdminDashboard() {
@@ -15,6 +16,9 @@ export default function AdminDashboard() {
 
   // Campaigns
   const [campaigns, setCampaigns] = useState([]);
+
+  // Total donations
+  const [totalDonations, setTotalDonations] = useState(0);
 
   // Allocation form
   const [campaign, setCampaign] = useState("");
@@ -64,8 +68,25 @@ export default function AdminDashboard() {
     }
   };
 
+  // --------------------------------------------------
+  // Get total donations
+  // --------------------------------------------------
+
+  const fetchDonationSummary = async () => {
+    try {
+      const response = await getFundAllocationDashboard();
+
+      console.log("Donation summary:", response.data);
+
+      setTotalDonations(response.data?.summary?.totalRaised || 0);
+    } catch (error) {
+      console.error("Failed to load donation summary:", error);
+    }
+  };
+
   useEffect(() => {
     fetchCampaigns();
+    fetchDonationSummary();
   }, []);
 
   // --------------------------------------------------
@@ -118,6 +139,9 @@ export default function AdminDashboard() {
       setCategory("");
       setAmount("");
       setDescription("");
+
+      // Refresh donation/summary data
+      fetchDonationSummary();
     } catch (error) {
       console.error("Create fund allocation error:", error);
 
@@ -238,7 +262,7 @@ export default function AdminDashboard() {
                   text-green-600
                 "
               >
-                ৳ --
+                ৳{Number(totalDonations).toLocaleString("en-BD")}
               </p>
             </div>
 
