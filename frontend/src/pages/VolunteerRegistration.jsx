@@ -6,28 +6,38 @@ import VolunteerDetailsForm from "../components/VolunteerDetailsForm";
 import { extractIdDetails } from "../utils/ocr";
 import api from "../api/axios";
 
-// Wizard steps: 'upload' -> 'confirm'. No more 'done' screen -- we just
-// redirect straight to /profile once the backend confirms the save.
+// Wizard steps: 'upload' -> 'confirm'. Redirects straight to /profile once
+// the backend confirms the save (no more 'done' screen).
 export default function VolunteerRegistration() {
   const navigate = useNavigate();
 
   const [step, setStep] = useState("upload");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [ocrError, setOcrError] = useState("");
   const [ocrData, setOcrData] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
-  // Step 1 -> runs the (mock) OCR, then advances to the confirm step
+  // Step 1 -> runs real OCR now. If the card can't be read we stay on the
+  // upload step and show why, instead of blowing up or silently advancing.
   const handleUploadContinue = async (file) => {
     setIsProcessing(true);
-    const result = await extractIdDetails(file);
-    setOcrData(result);
-    setIsProcessing(false);
-    setStep("confirm");
+    setOcrError("");
+    try {
+      const result = await extractIdDetails(file);
+      setOcrData(result);
+      setStep("confirm");
+    } catch (err) {
+      setOcrError(
+        err.message || "Could not read that card. Please try a clearer photo.",
+      );
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
-  // Step 2 -> real POST now. authMiddleware pulls the user off the JWT
-  // (the axios interceptor already attaches it), so we don't send a userId.
+  // Step 2 -> real POST. authMiddleware pulls the user off the JWT (the
+  // axios interceptor already attaches it), so we don't send a userId.
   const handleFormSubmit = async (payload) => {
     setIsSubmitting(true);
     setSubmitError("");
@@ -50,6 +60,7 @@ export default function VolunteerRegistration() {
         <IdUploadStep
           onContinue={handleUploadContinue}
           isProcessing={isProcessing}
+          ocrError={ocrError}
         />
       )}
 
