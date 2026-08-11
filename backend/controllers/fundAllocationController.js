@@ -138,6 +138,139 @@ const getCampaignAllocations = async (req, res) => {
   }
 };
 
+// Get overall fund allocation dashboard
+const getFundAllocationDashboard = async (req, res) => {
+  try {
+    // Get all campaigns
+    const campaigns = await Campaign.find()
+      .select(
+        "title targetAmount raisedAmount disasterType location status startDate endDate",
+      )
+      .sort({ createdAt: -1 });
+
+    // Get all fund allocations
+    const allocations = await FundAllocation.find()
+      .populate("campaign", "title")
+      .sort({ createdAt: -1 });
+
+    // Calculate total raised from campaigns
+    const totalRaised = campaigns.reduce(
+      (total, campaign) => total + (campaign.raisedAmount || 0),
+      0,
+    );
+
+    // Calculate total allocated from actual allocation documents
+    const totalAllocated = allocations.reduce(
+      (total, allocation) => total + (allocation.amount || 0),
+      0,
+    );
+
+    // Remaining funds
+    const totalRemaining = Math.max(totalRaised - totalAllocated, 0);
+
+    // Allocation percentage
+    const allocationPercentage =
+      totalRaised > 0
+        ? Number(((totalAllocated / totalRaised) * 100).toFixed(2))
+        : 0;
+
+    // Campaign-wise allocation summary
+    const campaignAllocationMap = {};
+
+    allocations.forEach((allocation) => {
+      if (!allocation.campaign) {
+        return;
+      }
+
+      const campaignId = allocation.campaign._id.toString();
+
+      if (!campaignAllocationMap[campaignId]) {
+        campaignAllocationMap[campaignId] = {
+          totalAllocated: 0,
+        };
+      }
+
+      campaignAllocationMap[campaignId].totalAllocated +=
+        allocation.amount || 0;
+    });
+
+    const campaignBreakdown = campaigns.map((campaign) => {
+      const campaignId = campaign._id.toString();
+
+      const allocated = campaignAllocationMap[campaignId]?.totalAllocated || 0;
+
+      const raised = campaign.raisedAmount || 0;
+
+      const remaining = Math.max(raised - allocated, 0);
+
+      const percentage =
+        raised > 0 ? Number(((allocated / raised) * 100).toFixed(2)) : 0;
+
+      return {
+        campaignId: campaign._id,
+        title: campaign.title,
+        targetAmount: campaign.targetAmount,
+        raisedAmount: raised,
+        totalAllocated: allocated,
+        remainingAmount: remaining,
+        allocationPercentage: percentage,
+        disasterType: campaign.disasterType,
+        location: campaign.location,
+        status: campaign.status,
+        startDate: campaign.startDate,
+        endDate: campaign.endDate,
+      };
+    });
+
+    // Category-wise allocation summary
+    const categoryMap = {};
+
+    allocations.forEach((allocation) => {
+      const category = allocation.category;
+
+      if (!categoryMap[category]) {
+        categoryMap[category] = 0;
+      }
+
+      categoryMap[category] += allocation.amount || 0;
+    });
+
+    const categoryBreakdown = Object.entries(categoryMap)
+      .map(([category, amount]) => ({
+        category,
+        amount,
+        percentage:
+          totalAllocated > 0
+            ? Number(((amount / totalAllocated) * 100).toFixed(2))
+            : 0,
+      }))
+      .sort((a, b) => b.amount - a.amount);
+
+    return res.status(200).json({
+      summary: {
+        totalRaised,
+        totalAllocated,
+        totalRemaining,
+        allocationPercentage,
+        totalCampaigns: campaigns.length,
+        totalAllocations: allocations.length,
+      },
+
+      campaignBreakdown,
+
+      categoryBreakdown,
+
+      recentAllocations: allocations.slice(0, 10),
+    });
+  } catch (error) {
+    console.error("Get fund allocation dashboard error:", error);
+
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
 // Update a fund allocation
 const updateFundAllocation = async (req, res) => {
   try {
@@ -245,6 +378,7 @@ module.exports = {
   createFundAllocation,
   getFundAllocations,
   getCampaignAllocations,
+  getFundAllocationDashboard,
   updateFundAllocation,
   deleteFundAllocation,
 };
