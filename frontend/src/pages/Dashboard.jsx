@@ -62,7 +62,7 @@ export default function Dashboard() {
           <DashboardSidebar open={sidebarOpen} setOpen={setSidebarOpen} />
 
           <main className="flex-1 p-4 sm:p-6 lg:p-8">
-            <div className="flex min-h-[400px] items-center justify-center">
+            <div className="flex min-h-100 items-center justify-center">
               <div className="text-center">
                 <div
                   className="
@@ -457,7 +457,7 @@ export default function Dashboard() {
                         )}
                       </td>
 
-                      <td className="min-w-[150px] px-6 py-5">
+                      <td className="min-w-37.5 px-6 py-5">
                         <div className="flex items-center gap-3">
                           <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-100">
                             <div
