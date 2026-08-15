@@ -7,12 +7,10 @@ const LocationSelector = ({ division = '', district = '', upazila = '', onLocati
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch location tree with absolute backend URL fallback
   useEffect(() => {
     const fetchLocations = async () => {
       try {
         setLoading(true);
-        // Try absolute backend URL first, fallback to relative proxy URL
         let response;
         try {
           response = await axios.get('http://localhost:8000/api/locations/tree');
@@ -39,7 +37,6 @@ const LocationSelector = ({ division = '', district = '', upazila = '', onLocati
     fetchLocations();
   }, []);
 
-  // Compute cascading options dynamically based on controlled props
   const currentDivisionObj = locations.find((loc) => loc.name === division);
   const availableDistricts = Array.isArray(currentDivisionObj?.districts)
     ? currentDivisionObj.districts
@@ -50,26 +47,17 @@ const LocationSelector = ({ division = '', district = '', upazila = '', onLocati
     ? currentDistrictObj.subdistricts
     : [];
 
-  // Dropdown Change Handlers
   const handleDivisionChange = (e) => {
-    const selectedDiv = e.target.value;
-    if (onLocationChange) {
-      onLocationChange({ division: selectedDiv, district: '', upazila: '' });
-    }
+    onLocationChange?.({ division: e.target.value, district: '', upazila: '', subdistrict: '' });
   };
 
   const handleDistrictChange = (e) => {
-    const selectedDist = e.target.value;
-    if (onLocationChange) {
-      onLocationChange({ division, district: selectedDist, upazila: '' });
-    }
+    onLocationChange?.({ division, district: e.target.value, upazila: '', subdistrict: '' });
   };
 
   const handleUpazilaChange = (e) => {
-    const selectedUpazila = e.target.value;
-    if (onLocationChange) {
-      onLocationChange({ division, district, upazila: selectedUpazila });
-    }
+    const val = e.target.value;
+    onLocationChange?.({ division, district, upazila: val, subdistrict: val });
   };
 
   if (loading) return <p className="text-sm text-gray-500 py-2">Loading location options...</p>;
@@ -77,7 +65,6 @@ const LocationSelector = ({ division = '', district = '', upazila = '', onLocati
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
-      {/* Division */}
       <div>
         <label className="block text-xs font-bold text-gray-600 mb-1">Division</label>
         <select
@@ -94,7 +81,6 @@ const LocationSelector = ({ division = '', district = '', upazila = '', onLocati
         </select>
       </div>
 
-      {/* District */}
       <div>
         <label className="block text-xs font-bold text-gray-600 mb-1">District *</label>
         <select
@@ -112,7 +98,6 @@ const LocationSelector = ({ division = '', district = '', upazila = '', onLocati
         </select>
       </div>
 
-      {/* Upazila / Subdistrict */}
       <div>
         <label className="block text-xs font-bold text-gray-600 mb-1">Sub-district / Upazila *</label>
         <select

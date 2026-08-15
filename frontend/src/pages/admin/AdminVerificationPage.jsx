@@ -1,9 +1,9 @@
 // src/pages/admin/AdminVerificationPage.jsx
 import React, { useState } from 'react';
-import { useReports } from '../../hooks/useReports';
-import AdminSidebar from '../../components/AdminSidebar';
-import { DetailedReportView } from '../../components/DetailedReportView';
-import { VerificationTable } from '../../components/VerificationTable';
+import { useReports } from '../../hooks/useReports.js';
+import AdminSidebar from '../../components/AdminSidebar.jsx';
+import { DetailedReportView } from '../../components/DetailedReportView.jsx';
+import { VerificationTable } from '../../components/VerificationTable.jsx';
 
 const AdminVerificationPage = () => {
   const [selectedReportId, setSelectedReportId] = useState(null);

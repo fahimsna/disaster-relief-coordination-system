@@ -1,7 +1,8 @@
+// src/pages/admin/SeverityThresholdPage.jsx
 import React, { useState } from 'react';
-import AdminSidebar from '../../components/AdminSidebar';
-import { ThresholdsForm } from '../../components/ThresholdsForm';
-import { useSeverityThresholds } from '../../hooks/useSeverityThresholds';
+import AdminSidebar from '../../components/AdminSidebar.jsx';
+import { ThresholdsForm } from '../../components/ThresholdsForm.jsx';
+import { useSeverityThresholds } from '../../hooks/useSeverityThresholds.js';
 
 const SeverityThresholdPage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
