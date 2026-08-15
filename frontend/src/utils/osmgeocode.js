@@ -2,43 +2,64 @@
 import axios from 'axios';
 
 export const fetchCoordinatesOnSubmit = async (formData) => {
-  // If user already used GPS auto-detect, preserve those exact coordinates
-  if (formData.latitude && formData.longitude && !formData.division) {
-    return { latitude: formData.latitude, longitude: formData.longitude };
+  const { latitude, longitude, subdistrict, upazila, district, division, manualAddress } = formData || {};
+
+  // 1. If valid numeric GPS coordinates are already set, use them immediately
+  if (
+    latitude !== null &&
+    longitude !== null &&
+    !isNaN(Number(latitude)) &&
+    !isNaN(Number(longitude))
+  ) {
+    return { latitude: Number(latitude), longitude: Number(longitude) };
   }
 
-  // Construct query: Upazila -> District -> Division -> Bangladesh
-  const queryParts = [
-    formData.subdistrict || formData.upazila,
-    formData.district,
-    formData.division,
-    'Bangladesh',
+  // Fallback defaults (Dhaka central) if geocoding completely fails
+  const FALLBACK_COORDS = { latitude: 23.8103, longitude: 90.4125 };
+
+  const targetSubdistrict = subdistrict || upazila || '';
+  
+  // 2. Progressive fallback search queries (from specific address to district level)
+  const queryCandidates = [
+    manualAddress && district ? `${manualAddress.trim()}, ${district.trim()}, Bangladesh` : null,
+    targetSubdistrict && district ? `${targetSubdistrict.trim()}, ${district.trim()}, Bangladesh` : null,
+    district ? `${district.trim()}, Bangladesh` : null,
+    division ? `${division.trim()}, Bangladesh` : null,
   ].filter(Boolean);
 
-  if (queryParts.length === 1 && queryParts[0] === 'Bangladesh') {
-    return { latitude: null, longitude: null };
+  if (queryCandidates.length === 0) {
+    return FALLBACK_COORDS;
   }
 
-  const searchQuery = queryParts.join(', ');
+  // 3. Loop through queries until Nominatim returns valid coordinates
+  for (const searchQuery of queryCandidates) {
+    try {
+      const res = await axios.get('https://nominatim.openstreetmap.org/search', {
+        params: {
+          q: searchQuery,
+          format: 'json',
+          limit: 1,
+        },
+        headers: {
+          // Required by Nominatim API Terms of Service to prevent 403 blocks
+          'User-Agent': 'DisasterReportApp/1.0 (contact@disasterreport.local)',
+        },
+      });
 
-  try {
-    const res = await axios.get('https://nominatim.openstreetmap.org/search', {
-      params: {
-        q: searchQuery,
-        format: 'json',
-        limit: 1,
-      },
-    });
+      if (res.data && Array.isArray(res.data) && res.data.length > 0) {
+        const parsedLat = parseFloat(res.data[0].lat);
+        const parsedLng = parseFloat(res.data[0].lon);
 
-    if (res.data && res.data.length > 0) {
-      return {
-        latitude: parseFloat(res.data[0].lat),
-        longitude: parseFloat(res.data[0].lon),
-      };
+        if (!isNaN(parsedLat) && !isNaN(parsedLng)) {
+          console.log(`Geocoded successfully using: "${searchQuery}"`, { latitude: parsedLat, longitude: parsedLng });
+          return { latitude: parsedLat, longitude: parsedLng };
+        }
+      }
+    } catch (err) {
+      console.warn(`OSM Geocoding query failed for "${searchQuery}":`, err.message);
     }
-  } catch (err) {
-    console.error('OSM Geocoding on submit failed:', err);
   }
 
-  return { latitude: null, longitude: null };
+  // Return fallback coordinates instead of null to prevent 400 Bad Request
+  return FALLBACK_COORDS;
 };
