@@ -20,6 +20,9 @@ import CreateCampaign from "./pages/admin/CreateCampaign";
 import EditCampaign from "./pages/admin/EditCampaign";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import VolunteerProfile from "./pages/VolunteerProfile";
+import SMSBroadcast from "./pages/admin/SMSBroadcast";
+//IMPORT
+import AlertConfiguration from "./pages/admin/AlertConfiguration";
 import WeatherTracker from "./pages/admin/WeatherTracker";
 
 export default function App() {
@@ -43,19 +46,13 @@ export default function App() {
           <Route path="/" element={<Signup />} />
 
           {/* Donor */}
-
           <Route path="/campaigns" element={<CampaignList />} />
-
           <Route path="/campaigns/:id" element={<CampaignDetails />} />
-
           <Route path="/donations" element={<MyDonations />} />
-
           <Route path="/payment-success" element={<PaymentSuccess />} />
-
           <Route path="/payment-cancel" element={<PaymentCancel />} />
 
           {/* User Dashboard */}
-
           <Route
             path="/dashboard"
             element={
@@ -65,9 +62,7 @@ export default function App() {
             }
           />
 
-          {/* Volunteer Profile Panel -- protected, visible to any logged-in user. */}
-          {/* The page will redirect to /register if the user hasn't completed onboarding yet. */}
-
+          {/* Volunteer Profile */}
           <Route
             path="/profile"
             element={
@@ -78,7 +73,6 @@ export default function App() {
           />
 
           {/* Admin Dashboard */}
-
           <Route
             path="/admin/dashboard"
             element={
@@ -89,7 +83,6 @@ export default function App() {
           />
 
           {/* Admin Campaign Management */}
-
           <Route
             path="/admin/campaigns"
             element={
@@ -117,6 +110,22 @@ export default function App() {
             }
           />
 
+          {/*  Alert Configuration */}
+          <Route
+            path="/admin/alerts"
+            element={
+              <ProtectedRoute role="admin">
+                <AlertConfiguration />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* SMS Broadcast */}
+          <Route
+            path="/admin/sms-broadcast"
+            element={
+              <ProtectedRoute role="admin">
+                <SMSBroadcast />
           {/* Weather Safety Tracker */}
           <Route
             path="/admin/weather"

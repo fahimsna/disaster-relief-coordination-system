@@ -21,6 +21,10 @@ export default function AdminSidebar({ open, setOpen }) {
       name: "Donation Analytics",
       path: "/admin/analytics",
     },
+    {
+      name: "SMS Broadcast",
+      path: "/admin/sms-broadcast",
+    },
   ];
 
   return (

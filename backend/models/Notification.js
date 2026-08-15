@@ -47,6 +47,37 @@ const notificationSchema = new mongoose.Schema(
     sentAt: {
       type: Date,
     },
+
+    // Delivery logs for SMS
+    deliveryLog: [
+      {
+        phoneNumber: {
+          type: String,
+          required: true,
+        },
+        messageSid: {
+          type: String,
+        },
+        status: {
+          type: String,
+          enum: ["queued", "sent", "delivered", "failed", "pending"],
+          default: "pending",
+        },
+        timestamp: {
+          type: Date,
+          default: Date.now,
+        },
+        errorMessage: {
+          type: String,
+        },
+      },
+    ],
+
+    // Track who sent the SMS
+    sentBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
   },
   {
     timestamps: true,
