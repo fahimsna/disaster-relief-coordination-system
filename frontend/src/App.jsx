@@ -21,12 +21,11 @@ import EditCampaign from "./pages/admin/EditCampaign";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import VolunteerProfile from "./pages/VolunteerProfile";
 import SMSBroadcast from "./pages/admin/SMSBroadcast";
-//IMPORT
 import AlertConfiguration from "./pages/admin/AlertConfiguration";
 import WeatherTracker from "./pages/admin/WeatherTracker";
 
 // Public Disaster Reporting & Admin Verification Pages
-import DisasterReportPage from "./pages/DisasterReportPage";
+import DisasterReportPage from "./pages/DisasterReportPage.jsx";
 import AdminVerificationPage from "./pages/admin/AdminVerificationPage";
 import SeverityThresholdPage from './pages/admin/SeverityThresholdPage';
 
@@ -40,11 +39,8 @@ export default function App() {
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<Login />} />
-
           <Route path="/signup" element={<Signup />} />
-
           <Route path="/register" element={<VolunteerRegistration />} />
-
           <Route path="/" element={<VolunteerRegistration />} />
 
           {/* Public Disaster Reporting */}
@@ -146,7 +142,7 @@ export default function App() {
             }
           />
 
-          {/*  Alert Configuration */}
+          {/* Alert Configuration */}
           <Route
             path="/admin/alerts"
             element={
@@ -162,6 +158,10 @@ export default function App() {
             element={
               <ProtectedRoute role="admin">
                 <SMSBroadcast />
+              </ProtectedRoute>
+            }
+          />
+
           {/* Weather Safety Tracker */}
           <Route
             path="/admin/weather"
