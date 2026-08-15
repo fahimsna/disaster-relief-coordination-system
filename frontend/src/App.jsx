@@ -23,6 +23,7 @@ import VolunteerProfile from "./pages/VolunteerProfile";
 import SMSBroadcast from "./pages/admin/SMSBroadcast";
 //IMPORT
 import AlertConfiguration from "./pages/admin/AlertConfiguration";
+import WeatherTracker from "./pages/admin/WeatherTracker";
 
 export default function App() {
   return (
@@ -125,6 +126,12 @@ export default function App() {
             element={
               <ProtectedRoute role="admin">
                 <SMSBroadcast />
+          {/* Weather Safety Tracker */}
+          <Route
+            path="/admin/weather"
+            element={
+              <ProtectedRoute role="admin">
+                <WeatherTracker />
               </ProtectedRoute>
             }
           />

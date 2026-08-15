@@ -1,7 +1,19 @@
 const router = require("express").Router();
+const { protect } = require("../middleware/authMiddleware");
 const c = require("../controllers/weatherController");
 
-router.post("/check", c.checkWeather); // query live weather + save log
-router.get("/logs", c.getLogs); // history of all queries
-router.get("/logs/:id", c.getLogById); // single log
+// authMiddleware only has `protect` (JWT check), no role helper yet -
+// gating admin-only here until we add a proper authorize() to authMiddleware.js
+function requireAdmin(req, res, next) {
+  if (req.user?.role !== "admin") {
+    return res.status(403).json({ message: "Admins only" });
+  }
+  next();
+}
+
+router.use(protect, requireAdmin);
+
+router.get("/incidents", c.getIncidents); // dropdown source (mock for now)
+router.post("/query", c.queryWeather); // hit Open-Meteo + log the result
+
 module.exports = router;
