@@ -1,6 +1,6 @@
 // src/pages/HomePage.jsx
 import React from 'react';
-import LiveIncidentMap from '../components/map/LiveIncidentMap.jsx';
+import LiveIncidentMap from "../components/map/LiveIncidentMap.jsx";
 
 export default function HomePage() {
   return (

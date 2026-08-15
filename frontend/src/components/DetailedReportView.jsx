@@ -1,6 +1,6 @@
 import React from 'react';
-import { SeverityBadge } from './SeverityBadge';
-import { getReportStatus, formatDistrictField, formatIncidentId } from '../utils/formatters';
+import { SeverityBadge } from './SeverityBadge.jsx';
+import { getReportStatus, formatDistrictField, formatIncidentId } from '../utils/formatters.js';
 
 export const DetailedReportView = ({
   report,
@@ -11,6 +11,7 @@ export const DetailedReportView = ({
   onSetSeverity,
 }) => {
   const currentStatus = getReportStatus(report);
+  const isResolved = currentStatus?.toLowerCase() === 'resolved';
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 max-w-3xl mx-auto relative">
@@ -30,6 +31,7 @@ export const DetailedReportView = ({
             reportId={report._id}
             currentSeverity={report.severity}
             onSetSeverity={onSetSeverity}
+            disabled={isResolved}
           />
         </div>
 
@@ -40,49 +42,60 @@ export const DetailedReportView = ({
                 ? 'bg-emerald-100 text-emerald-700'
                 : currentStatus === 'Rejected'
                 ? 'bg-rose-100 text-rose-700'
+                : isResolved
+                ? 'bg-blue-100 text-blue-700'
                 : 'bg-amber-100 text-amber-700'
             }`}
           >
             ● {currentStatus}
           </span>
 
-          {currentStatus === 'Pending' && (
+          {/* Action buttons section */}
+          {isResolved ? (
+            <span className="px-3 py-1 bg-gray-100 text-gray-500 text-xs font-semibold rounded-full border border-gray-200">
+              Incident Resolved 
+            </span>
+          ) : (
             <div className="flex gap-2">
-              <button
-                onClick={() => onVerify(report._id)}
-                disabled={actionLoading}
-                className="px-5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-full shadow transition"
-              >
-                Verify
-              </button>
-              <button
-                onClick={() => onReject(report._id)}
-                disabled={actionLoading}
-                className="px-5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-full shadow transition"
-              >
-                Reject
-              </button>
+              {currentStatus === 'Pending' && (
+                <>
+                  <button
+                    onClick={() => onVerify(report._id)}
+                    disabled={actionLoading}
+                    className="px-5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-full shadow transition disabled:opacity-50"
+                  >
+                    Verify
+                  </button>
+                  <button
+                    onClick={() => onReject(report._id)}
+                    disabled={actionLoading}
+                    className="px-5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-full shadow transition disabled:opacity-50"
+                  >
+                    Reject
+                  </button>
+                </>
+              )}
+
+              {currentStatus === 'Verified' && (
+                <button
+                  onClick={() => onReject(report._id)}
+                  disabled={actionLoading}
+                  className="px-5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-full shadow transition disabled:opacity-50"
+                >
+                  Reject
+                </button>
+              )}
+
+              {currentStatus === 'Rejected' && (
+                <button
+                  onClick={() => onVerify(report._id)}
+                  disabled={actionLoading}
+                  className="px-5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-full shadow transition disabled:opacity-50"
+                >
+                  Verify
+                </button>
+              )}
             </div>
-          )}
-
-          {currentStatus === 'Verified' && (
-            <button
-              onClick={() => onReject(report._id)}
-              disabled={actionLoading}
-              className="px-5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-full shadow transition"
-            >
-              Reject
-            </button>
-          )}
-
-          {currentStatus === 'Rejected' && (
-            <button
-              onClick={() => onVerify(report._id)}
-              disabled={actionLoading}
-              className="px-5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-full shadow transition"
-            >
-              Verify
-            </button>
           )}
         </div>
       </div>

@@ -1,6 +1,6 @@
-import React from 'react';
-import { TableSortHeader } from './TableSortHeader';
-import { VerificationTableRow } from './VerificationTableRow';
+import React, { useState } from 'react';
+import { TableSortHeader } from './TableSortHeader.jsx';
+import { VerificationTableRow } from './VerificationTableRow.jsx';
 
 export const VerificationTable = ({
   reports,
@@ -15,11 +15,23 @@ export const VerificationTable = ({
   onReject,
   onSetSeverity,
 }) => {
+  // Active Tab State: 'Pending' | 'Verified' | 'Rejected' | 'Resolved' | 'All'
+  const [activeTab, setActiveTab] = useState('Pending');
+
+  // Filter reports based on active tab
+  const filteredReportsByTab = (reports || []).filter((report) => {
+    if (activeTab === 'All') return true;
+    const status = (report.status || 'Pending').toLowerCase();
+    return status === activeTab.toLowerCase();
+  });
+
+  const tabs = ['Pending', 'Verified', 'Rejected', 'Resolved', 'All'];
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
       {/* Header & Search Bar */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <h1 className="text-xl font-bold text-gray-900">Verification Queue</h1>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+        <h1 className="text-xl font-bold text-gray-900">Incident Reports Directory</h1>
 
         <div className="relative w-full sm:w-72">
           <input
@@ -31,6 +43,38 @@ export const VerificationTable = ({
           />
           <span className="absolute left-2.5 top-2.5 text-xs text-gray-400">🔍</span>
         </div>
+      </div>
+
+      {/* 🟢 Status Tabs */}
+      <div className="flex space-x-2 border-b border-gray-200 mb-6 pb-2 overflow-x-auto">
+        {tabs.map((tab) => {
+          const count = (reports || []).filter((r) =>
+            tab === 'All' ? true : (r.status || 'Pending').toLowerCase() === tab.toLowerCase()
+          ).length;
+
+          const isActive = activeTab === tab;
+
+          return (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center space-x-2 ${
+                isActive
+                  ? 'bg-[#00b4d8] text-white shadow-sm'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              <span>{tab}</span>
+              <span
+                className={`px-1.5 py-0.5 text-[10px] rounded-full ${
+                  isActive ? 'bg-white text-[#00b4d8]' : 'bg-gray-200 text-gray-700'
+                }`}
+              >
+                {count}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Table Container */}
@@ -53,17 +97,17 @@ export const VerificationTable = ({
             {loading ? (
               <tr>
                 <td colSpan="9" className="text-center py-8 text-gray-500">
-                  Loading queue...
+                  Loading reports...
                 </td>
               </tr>
-            ) : reports.length === 0 ? (
+            ) : filteredReportsByTab.length === 0 ? (
               <tr>
                 <td colSpan="9" className="text-center py-8 text-gray-400">
-                  No disaster reports match your search query.
+                  No {activeTab.toLowerCase()} reports found.
                 </td>
               </tr>
             ) : (
-              reports.map((report) => (
+              filteredReportsByTab.map((report) => (
                 <VerificationTableRow
                   key={report._id}
                   report={report}

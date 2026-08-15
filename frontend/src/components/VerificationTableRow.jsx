@@ -1,6 +1,6 @@
 import React from 'react';
-import { SeverityBadge } from './SeverityBadge';
-import { getReportStatus, formatDistrictField, formatIncidentId } from '../utils/formatters';
+import { SeverityBadge } from './SeverityBadge/jsx';
+import { getReportStatus, formatDistrictField, formatIncidentId } from '../utils/formatters.js';
 
 export const VerificationTableRow = ({
   report,
@@ -10,6 +10,7 @@ export const VerificationTableRow = ({
   onSetSeverity,
 }) => {
   const currentStatus = getReportStatus(report);
+  const isResolved = currentStatus?.toLowerCase() === 'resolved';
 
   return (
     <tr
@@ -59,6 +60,8 @@ export const VerificationTableRow = ({
               ? 'bg-emerald-100 text-emerald-700'
               : currentStatus === 'Rejected'
               ? 'bg-rose-100 text-rose-700'
+              : isResolved
+              ? 'bg-blue-100 text-blue-700'
               : 'bg-amber-100 text-amber-700'
           }`}
         >
@@ -92,6 +95,7 @@ export const VerificationTableRow = ({
           reportId={report._id}
           currentSeverity={report.severity}
           onSetSeverity={onSetSeverity}
+          disabled={isResolved}
         />
       </td>
 
@@ -101,7 +105,11 @@ export const VerificationTableRow = ({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-center items-center gap-1.5">
-          {currentStatus === 'Pending' ? (
+          {isResolved ? (
+            <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-blue-50 text-blue-600">
+              Resolved
+            </span>
+          ) : currentStatus === 'Pending' ? (
             <>
               <button
                 onClick={() => onVerify(report._id)}

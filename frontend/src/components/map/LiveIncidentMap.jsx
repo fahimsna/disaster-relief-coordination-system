@@ -6,7 +6,7 @@ import IncidentPopup from './IncidentPopup.jsx';
 import MapFilterOverlay from './MapFilterOverlay.jsx';
 import { useIncidents } from './useIncidents.js';
 
-export default function LiveIncidentMap({ isCoordinator = true }) {
+function LiveIncidentMap({ isCoordinator = true }) {
   const {
     incidents,
     rawIncidents,
@@ -45,22 +45,42 @@ export default function LiveIncidentMap({ isCoordinator = true }) {
 
         {incidents.length > 0 && <MapBoundsAdjuster markers={incidents} />}
 
-        {incidents.map((incident) => (
-          <Marker
-            key={incident._id}
-            position={[incident.latitude, incident.longitude]}
-            icon={SEVERITY_ICONS[incident.severity] || SEVERITY_ICONS.Medium}
-          >
-            <Popup>
-              <IncidentPopup
-                incident={incident}
-                isCoordinator={isCoordinator}
-                onResolve={resolveIncident}
-              />
-            </Popup>
-          </Marker>
-        ))}
+        {incidents
+          // 1. Filter out items with missing or invalid coordinates
+          .filter((incident) => {
+            const lat = Number(incident.latitude);
+            const lng = Number(incident.longitude);
+            return !isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0;
+          })
+          // 2. Safely render markers
+          .map((incident, index) => {
+            let lat = Number(incident.latitude);
+            let lng = Number(incident.longitude);
+
+            // Swap coordinates if latitude and longitude were accidentally inverted (e.g., GeoJSON format)
+            if (lat > 85 || lat < -85) {
+              [lat, lng] = [lng, lat];
+            }
+
+            return (
+              <Marker
+                key={incident._id || `incident-${index}`}
+                position={[lat, lng]}
+                icon={SEVERITY_ICONS[incident.severity] || SEVERITY_ICONS.Medium}
+              >
+                <Popup>
+                  <IncidentPopup
+                    incident={incident}
+                    isCoordinator={isCoordinator}
+                    onResolve={resolveIncident}
+                  />
+                </Popup>
+              </Marker>
+            );
+          })}
       </MapContainer>
     </div>
   );
 }
+
+export default LiveIncidentMap;

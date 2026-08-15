@@ -1,5 +1,5 @@
 import React from 'react';
-import LocationSelector from './LocationSelector';
+import LocationSelector from './LocationSelector.jsx';
 
 const CRISIS_TYPES = [
   { id: 'Flood', label: 'Flood', icon: '🌊' },

@@ -8,4 +8,5 @@ router.get('/:id', c.getReportById);       // View report by ID
 router.put('/:id/verify', c.verifyReport); // Admin verify report
 router.put('/:id/reject', c.rejectReport); // Admin reject report
 router.put('/:id/severity', c.updateSeverity); // Admin update severity
+router.put('/:id/resolve', c.resolveReport); // Admin resolve report
 module.exports = router;

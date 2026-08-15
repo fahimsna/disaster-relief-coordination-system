@@ -162,3 +162,21 @@ exports.updateSeverity = async (req, res) => {
     res.status(500).json({ message: 'Failed to update severity', error: error.message });
   }
 };
+
+// @desc    Resolve a disaster report
+// @route   PUT /api/reports/:id/resolve
+exports.resolveReport = async (req, res) => {
+  try {
+    const report = await DisasterReport.findByIdAndUpdate(
+      req.params.id,
+      { status: 'Resolved' },
+      { returnDocument: 'after' }
+    );
+    if (!report) {
+      return res.status(404).json({ message: 'Report not found' });
+    }
+    res.json({ success: true, message: 'Report resolved successfully', data: report });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to resolve report', error: error.message });
+  }
+};

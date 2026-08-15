@@ -1,24 +1,28 @@
 import React, { useState } from 'react';
-import { getSeverityBadgeStyle } from '../utils/formatters';
+import { getSeverityBadgeStyle } from '../utils/formatters.js';
 
-export const SeverityBadge = ({ reportId, currentSeverity, onSetSeverity }) => {
+export const SeverityBadge = ({ reportId, currentSeverity, onSetSeverity, disabled = false }) => {
   const [open, setOpen] = useState(false);
 
   return (
     <div className="relative">
       {/* Clickable Badge Trigger */}
       <button
+        type="button"
+        disabled={disabled}
         onClick={(e) => {
           e.stopPropagation(); // Prevents opening the row detail view when clicking the badge
-          setOpen(!open);
+          if (!disabled) setOpen(!open);
         }}
-        className={`px-3 py-1 text-xs font-bold rounded-full border flex items-center gap-1 transition ${getSeverityBadgeStyle(currentSeverity)}`}
+        className={`px-3 py-1 text-xs font-bold rounded-full border flex items-center gap-1 transition ${getSeverityBadgeStyle(currentSeverity)} ${
+          disabled ? 'cursor-not-allowed opacity-80' : 'cursor-pointer hover:opacity-90'
+        }`}
       >
         ● {currentSeverity || 'Low'}
       </button>
 
-      {/* Popover Selection Box */}
-      {open && (
+      {/* Popover Selection Box - Only renders if not disabled */}
+      {!disabled && open && (
         <div 
           onClick={(e) => e.stopPropagation()} 
           className="absolute top-8 left-0 w-52 bg-white border border-gray-200 rounded-xl shadow-xl p-5 z-30 space-y-4 animate-in fade-in"

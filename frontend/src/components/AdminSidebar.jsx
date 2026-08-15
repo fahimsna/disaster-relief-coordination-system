@@ -10,6 +10,10 @@ export default function AdminSidebar({ open, setOpen }) {
       path: "/admin/dashboard",
     },
     {
+      name: "Incident Command Map",
+      path: "/admin/map",
+    },
+    {
       name: "Report Verification",
       path: "/admin/report-verification",
     },

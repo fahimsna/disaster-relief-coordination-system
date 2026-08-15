@@ -2,8 +2,15 @@
  * Resolves report status based on 'status' string.
  */
 export const getReportStatus = (r) => {
-  if (r.status === 'Verified') return 'Verified';
-  if (r.status === 'Rejected') return 'Rejected';
+  if (!r) return 'Pending';
+
+  // Normalize to handle mixed casing (e.g. 'resolved', 'RESOLVED', 'Resolved')
+  const statusStr = (r.status || '').toLowerCase();
+
+  if (statusStr === 'resolved') return 'Resolved';
+  if (statusStr === 'verified') return 'Verified';
+  if (statusStr === 'rejected') return 'Rejected';
+
   return 'Pending';
 };
 

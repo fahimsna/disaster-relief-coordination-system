@@ -26,6 +26,10 @@ import DisasterReportPage from "./pages/DisasterReportPage";
 import AdminVerificationPage from "./pages/admin/AdminVerificationPage";
 import SeverityThresholdPage from './pages/admin/SeverityThresholdPage';
 
+// Map & GIS Pages
+import PublicMapPage from "./pages/PublicMapPage";
+import IncidentCommandMapPage from "./pages/admin/IncidentCommandMapPage";
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -41,6 +45,17 @@ export default function App() {
 
           {/* Public Disaster Reporting */}
           <Route path="/report" element={<DisasterReportPage />} />
+
+          {/* Map Pages */}
+          <Route path="/map" element={<PublicMapPage />} />
+          <Route
+            path="/admin/map"
+            element={
+              <ProtectedRoute role="admin">
+                <IncidentCommandMapPage />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Donor */}
 
