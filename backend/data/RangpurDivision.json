@@ -1,0 +1,107 @@
+[
+  {
+    "name": "Rangpur",
+    "districts": [
+      {
+        "name": "Dinajpur",
+        "subdistricts": [
+          "Birampur Upazila",
+          "Birganj Upazila",
+          "Birol Upazila",
+          "Bochaganj Upazila",
+          "Chirirbandar Upazila",
+          "Fulbari Upazila",
+          "Ghoraghat Upazila",
+          "Hakimpur Upazila",
+          "Kaharol Upazila",
+          "Khansama Upazila",
+          "Nawabganj Upazila",
+          "Parbatipur Upazila",
+          "Dinajpur Sadar Upazila"
+        ]
+      },
+      {
+        "name": "Gaibandha",
+        "subdistricts": [
+          "Phulchari Upazila",
+          "Gaibandha Sadar Upazila",
+          "Gobindaganj Upazila",
+          "Palashbari Upazila",
+          "Sadullapur Upazila",
+          "Saghata Upazila",
+          "Sundarganj Upazila"
+        ]
+      },
+      {
+        "name": "Kurigram",
+        "subdistricts": [
+          "Phulbari Upazila",
+          "Bhurungamari Upazila",
+          "Charrajibpur Upazila",
+          "Chilmari Upazila",
+          "Kurigram Sadar Upazila",
+          "Nageshwari Upazila",
+          "Rajarhat Upazila",
+          "Rowmari Upazila",
+          "Ulipur Upazila"
+        ]
+      },
+      {
+        "name": "Lalmonirhat",
+        "subdistricts": [
+          "Aditmari Upazila",
+          "Hatibandha Upazila",
+          "Kaliganj Upazila",
+          "Lalmonirhat Sadar Upazila",
+          "Patgram Upazila"
+        ]
+      },
+      {
+        "name": "Nilphamari",
+        "subdistricts": [
+          "Domar Upazila",
+          "Jaldhaka Upazila",
+          "Kishorganj Upazila",
+          "Nilphamari Sadar Upazila",
+          "Syedpur Upazila",
+          "Dimla Upazila"
+        ]
+      },
+      {
+        "name": "Panchagarh",
+        "subdistricts": [
+          "Atwari Upazila",
+          "Boda Upazila",
+          "Debiganj Upazila",
+          "Panchagarh Sadar Upazila",
+          "Tetulia Upazila"
+        ]
+      },
+      {
+        "name": "Rangpur",
+        "subdistricts": [
+          "Badargonj Upazila",
+          "Kaunia Upazila",
+          "Rangpur Sadar Upazila",
+          "Mithapukur Upazila",
+          "Pirgacha Upazila",
+          "Pirgonj Upazila",
+          "Taragonj Upazila",
+          "Gangachara Upazila"
+        ]
+      },
+      {
+        "name": "Thakurgaon",
+        "subdistricts": [
+          "Pirganj Upazila",
+          "Baliadangi Upazila",
+          "Haripur Upazila",
+          "Ranisankail Upazila",
+          "Thakurgaon Sadar Upazila",
+          "Bhulli Upazila",
+          "Ruhia Upazila"
+        ]
+      }
+    ]
+  }
+]

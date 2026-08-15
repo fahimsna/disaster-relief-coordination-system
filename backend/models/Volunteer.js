@@ -11,19 +11,8 @@ const volunteerSchema = new mongoose.Schema(
       unique: true, // one volunteer profile per account, no duplicates
     },
     fullName: { type: String, required: true },
-
-    idNumber: {
-      type: String,
-      required: true,
-      match: [/^\d+$/, "ID number must contain only digits"],
-    },
-
-    phone: {
-      type: String,
-      required: true,
-      match: [/^(\+8801|01)[3-9]\d{8}$/, "Invalid Bangladeshi phone number"],
-    },
-
+    idNumber: { type: String, required: true }, // from NID/Student ID
+    phone: { type: String, required: true },
     district: { type: String, required: true },
     bloodType: { type: String },
     skills: [{ type: String }], // e.g. ["First Aid", "Search & Rescue"]

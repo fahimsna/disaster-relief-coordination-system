@@ -21,9 +21,17 @@ import EditCampaign from "./pages/admin/EditCampaign";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import VolunteerProfile from "./pages/VolunteerProfile";
 import SMSBroadcast from "./pages/admin/SMSBroadcast";
-//IMPORT
 import AlertConfiguration from "./pages/admin/AlertConfiguration";
 import WeatherTracker from "./pages/admin/WeatherTracker";
+
+// Public Disaster Reporting & Admin Verification Pages
+import DisasterReportPage from "./pages/DisasterReportPage.jsx";
+import AdminVerificationPage from "./pages/admin/AdminVerificationPage";
+import SeverityThresholdPage from './pages/admin/SeverityThresholdPage';
+
+// Map & GIS Pages
+import PublicMapPage from "./pages/PublicMapPage";
+import IncidentCommandMapPage from "./pages/admin/IncidentCommandMapPage";
 
 export default function App() {
   return (
@@ -31,19 +39,23 @@ export default function App() {
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<Login />} />
-
           <Route path="/signup" element={<Signup />} />
+          <Route path="/register" element={<VolunteerRegistration />} />
+          <Route path="/" element={<VolunteerRegistration />} />
 
+          {/* Public Disaster Reporting */}
+          <Route path="/report" element={<DisasterReportPage />} />
+
+          {/* Map Pages */}
+          <Route path="/map" element={<PublicMapPage />} />
           <Route
-            path="/register"
+            path="/admin/map"
             element={
-              <ProtectedRoute role="volunteer">
-                <VolunteerRegistration />
+              <ProtectedRoute role="admin">
+                <IncidentCommandMapPage />
               </ProtectedRoute>
             }
           />
-
-          <Route path="/" element={<Signup />} />
 
           {/* Donor */}
           <Route path="/campaigns" element={<CampaignList />} />
@@ -66,7 +78,7 @@ export default function App() {
           <Route
             path="/profile"
             element={
-              <ProtectedRoute role="volunteer">
+              <ProtectedRoute>
                 <VolunteerProfile />
               </ProtectedRoute>
             }
@@ -78,6 +90,26 @@ export default function App() {
             element={
               <ProtectedRoute role="admin">
                 <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Admin Report Verification Queue */}
+          <Route
+            path="/admin/report-verification"
+            element={
+              <ProtectedRoute role="admin">
+                <AdminVerificationPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Admin Global Severity Thresholds */}
+          <Route
+            path="/admin/severity-threshold"
+            element={
+              <ProtectedRoute role="admin">
+                <SeverityThresholdPage />
               </ProtectedRoute>
             }
           />
@@ -110,7 +142,7 @@ export default function App() {
             }
           />
 
-          {/*  Alert Configuration */}
+          {/* Alert Configuration */}
           <Route
             path="/admin/alerts"
             element={
@@ -126,6 +158,10 @@ export default function App() {
             element={
               <ProtectedRoute role="admin">
                 <SMSBroadcast />
+              </ProtectedRoute>
+            }
+          />
+
           {/* Weather Safety Tracker */}
           <Route
             path="/admin/weather"

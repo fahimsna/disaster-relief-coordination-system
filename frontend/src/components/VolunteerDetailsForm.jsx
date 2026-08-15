@@ -30,11 +30,9 @@ export default function VolunteerDetailsForm({
   };
 
   const phoneRegex = /^(\+8801|01)[3-9]\d{8}$/;
-  const idRegex = /^\d+$/;
-
   const isValid =
     fullName.trim() &&
-    idRegex.test(idNumber) &&
+    idNumber.trim() &&
     phoneRegex.test(phone) &&
     district &&
     bloodType;
