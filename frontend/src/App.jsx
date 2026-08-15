@@ -20,6 +20,7 @@ import CreateCampaign from "./pages/admin/CreateCampaign";
 import EditCampaign from "./pages/admin/EditCampaign";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import VolunteerProfile from "./pages/VolunteerProfile";
+import WeatherTracker from "./pages/admin/WeatherTracker";
 
 export default function App() {
   return (
@@ -112,6 +113,16 @@ export default function App() {
             element={
               <ProtectedRoute role="admin">
                 <EditCampaign />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Weather Safety Tracker */}
+          <Route
+            path="/admin/weather"
+            element={
+              <ProtectedRoute role="admin">
+                <WeatherTracker />
               </ProtectedRoute>
             }
           />
