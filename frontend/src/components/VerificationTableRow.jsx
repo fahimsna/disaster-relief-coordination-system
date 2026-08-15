@@ -1,5 +1,5 @@
 import React from 'react';
-import { SeverityBadge } from './SeverityBadge/jsx';
+import { SeverityBadge } from './SeverityBadge.jsx';
 import { getReportStatus, formatDistrictField, formatIncidentId } from '../utils/formatters.js';
 
 export const VerificationTableRow = ({
