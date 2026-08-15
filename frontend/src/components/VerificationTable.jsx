@@ -18,11 +18,17 @@ export const VerificationTable = ({
   // Active Tab State: 'Pending' | 'Verified' | 'Rejected' | 'Resolved' | 'All'
   const [activeTab, setActiveTab] = useState('Pending');
 
+  // Helper function to normalize DB status ('unverified' -> 'pending')
+  const normalizeStatus = (status) => {
+    const s = (status || 'unverified').toLowerCase();
+    return s === 'unverified' ? 'pending' : s;
+  };
+
   // Filter reports based on active tab
   const filteredReportsByTab = (reports || []).filter((report) => {
     if (activeTab === 'All') return true;
-    const status = (report.status || 'Pending').toLowerCase();
-    return status === activeTab.toLowerCase();
+    const reportStatus = normalizeStatus(report.status);
+    return reportStatus === activeTab.toLowerCase();
   });
 
   const tabs = ['Pending', 'Verified', 'Rejected', 'Resolved', 'All'];
@@ -45,11 +51,11 @@ export const VerificationTable = ({
         </div>
       </div>
 
-      {/* 🟢 Status Tabs */}
+      {/* Status Tabs */}
       <div className="flex space-x-2 border-b border-gray-200 mb-6 pb-2 overflow-x-auto">
         {tabs.map((tab) => {
           const count = (reports || []).filter((r) =>
-            tab === 'All' ? true : (r.status || 'Pending').toLowerCase() === tab.toLowerCase()
+            tab === 'All' ? true : normalizeStatus(r.status) === tab.toLowerCase()
           ).length;
 
           const isActive = activeTab === tab;
