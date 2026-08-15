@@ -27,7 +27,7 @@ import WeatherTracker from "./pages/admin/WeatherTracker";
 // Public Disaster Reporting & Admin Verification Pages
 import DisasterReportPage from "./pages/DisasterReportPage.jsx";
 import AdminVerificationPage from "./pages/admin/AdminVerificationPage";
-import SeverityThresholdPage from './pages/admin/SeverityThresholdPage';
+import SeverityThresholdPage from "./pages/admin/SeverityThresholdPage";
 
 // Map & GIS Pages
 import PublicMapPage from "./pages/PublicMapPage";
