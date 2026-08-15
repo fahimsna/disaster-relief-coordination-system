@@ -25,7 +25,7 @@ import AlertConfiguration from "./pages/admin/AlertConfiguration";
 import WeatherTracker from "./pages/admin/WeatherTracker";
 
 // Public Disaster Reporting & Admin Verification Pages
-import DisasterReportPage from "./pages/DisasterReportPage.jsx";
+import DisasterReportPage from "./pages/disasterReportPage.jsx";
 import AdminVerificationPage from "./pages/admin/AdminVerificationPage";
 import SeverityThresholdPage from "./pages/admin/SeverityThresholdPage";
 
@@ -41,7 +41,8 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/register" element={<VolunteerRegistration />} />
-          <Route path="/" element={<VolunteerRegistration />} />
+
+          <Route path="/" element={<Signup />} />
 
           {/* Public Disaster Reporting */}
           <Route path="/report" element={<DisasterReportPage />} />

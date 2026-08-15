@@ -1,4 +1,4 @@
-const ThresholdConfig = require('../models/ThresholdConfig');
+const ThresholdConfig = require("../models/thresholdConfig");
 
 const CONFIG_KEY = "severity_rules";
 
@@ -15,7 +15,12 @@ exports.getThresholds = async (req, res) => {
 
     res.json(config);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching threshold configurations', error: error.message });
+    res
+      .status(500)
+      .json({
+        message: "Error fetching threshold configurations",
+        error: error.message,
+      });
   }
 };
 
@@ -26,22 +31,36 @@ exports.updateThresholds = async (req, res) => {
 
   // Validation
   if (windowHours <= 0 || mediumThreshold <= 0 || criticalThreshold <= 0) {
-    return res.status(400).json({ message: 'All threshold values must be positive numbers' });
+    return res
+      .status(400)
+      .json({ message: "All threshold values must be positive numbers" });
   }
 
   if (mediumThreshold >= criticalThreshold) {
-    return res.status(400).json({ message: 'mediumThreshold must be lower than criticalThreshold' });
+    return res
+      .status(400)
+      .json({
+        message: "mediumThreshold must be lower than criticalThreshold",
+      });
   }
 
   try {
     const updatedConfig = await ThresholdConfig.findOneAndUpdate(
       { key: CONFIG_KEY },
       { windowHours, mediumThreshold, criticalThreshold },
-      { returnDocument: 'after', upsert: true, runValidators: true }
+      { returnDocument: "after", upsert: true, runValidators: true },
     );
 
-    res.json({ message: 'Threshold configurations updated successfully', config: updatedConfig });
+    res.json({
+      message: "Threshold configurations updated successfully",
+      config: updatedConfig,
+    });
   } catch (error) {
-    res.status(500).json({ message: 'Error updating threshold configurations', error: error.message });
+    res
+      .status(500)
+      .json({
+        message: "Error updating threshold configurations",
+        error: error.message,
+      });
   }
 };

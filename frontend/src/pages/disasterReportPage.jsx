@@ -1,21 +1,21 @@
 // src/pages/DisasterReportPage.jsx
-import React, { useState } from 'react';
-import axios from 'axios';
-import { DisasterFormSteps } from '../components/DisasterFormSteps.jsx';
-import { fetchCoordinatesOnSubmit } from '../utils/osmGeocode.js';
+import React, { useState } from "react";
+import axios from "axios";
+import { DisasterFormSteps } from "../components/DisasterFormSteps.jsx";
+import { fetchCoordinatesOnSubmit } from "../utils/osmgeocode.js";
 
 export default function DisasterReportPage() {
   const [submitting, setSubmitting] = useState(false);
   const [detectingLocation, setDetectingLocation] = useState(false);
-  const [feedback, setFeedback] = useState({ type: '', message: '' });
+  const [feedback, setFeedback] = useState({ type: "", message: "" });
 
   const [formData, setFormData] = useState({
-    crisisType: '',
-    description: '',
-    division: '',
-    district: '',
-    subdistrict: '',
-    manualAddress: '',
+    crisisType: "",
+    description: "",
+    division: "",
+    district: "",
+    subdistrict: "",
+    manualAddress: "",
     latitude: null,
     longitude: null,
   });
@@ -36,7 +36,7 @@ export default function DisasterReportPage() {
   // Browser Geolocation for "Use My Location" button
   const handleUseLocation = () => {
     if (!navigator.geolocation) {
-      alert('Geolocation is not supported by your browser.');
+      alert("Geolocation is not supported by your browser.");
       return;
     }
 
@@ -51,10 +51,12 @@ export default function DisasterReportPage() {
         setDetectingLocation(false);
       },
       (error) => {
-        console.error('Error getting location:', error);
+        console.error("Error getting location:", error);
         setDetectingLocation(false);
-        alert('Could not retrieve your location. Please select it manually below.');
-      }
+        alert(
+          "Could not retrieve your location. Please select it manually below.",
+        );
+      },
     );
   };
 
@@ -62,7 +64,7 @@ export default function DisasterReportPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
-    setFeedback({ type: '', message: '' });
+    setFeedback({ type: "", message: "" });
 
     try {
       let finalLat = formData.latitude;
@@ -82,12 +84,18 @@ export default function DisasterReportPage() {
       };
 
       // Send to your backend endpoint
-      await axios.post('http://localhost:8000/api/reports', payload);
+      await axios.post("http://localhost:8000/api/reports", payload);
 
-      setFeedback({ type: 'success', message: 'Report submitted successfully!' });
+      setFeedback({
+        type: "success",
+        message: "Report submitted successfully!",
+      });
     } catch (err) {
-      console.error('Error submitting report:', err);
-      setFeedback({ type: 'error', message: 'Failed to submit report. Please try again.' });
+      console.error("Error submitting report:", err);
+      setFeedback({
+        type: "error",
+        message: "Failed to submit report. Please try again.",
+      });
     } finally {
       setSubmitting(false);
     }
@@ -95,12 +103,16 @@ export default function DisasterReportPage() {
 
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white shadow-md rounded-2xl my-8">
-      <h1 className="text-xl font-bold mb-6 text-gray-800">Report a Disaster Incident</h1>
+      <h1 className="text-xl font-bold mb-6 text-gray-800">
+        Report a Disaster Incident
+      </h1>
 
       {feedback.message && (
         <div
           className={`p-3 mb-4 rounded-lg text-sm ${
-            feedback.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+            feedback.type === "success"
+              ? "bg-green-100 text-green-800"
+              : "bg-red-100 text-red-800"
           }`}
         >
           {feedback.message}
@@ -123,7 +135,9 @@ export default function DisasterReportPage() {
           disabled={submitting}
           className="w-full py-3 bg-[#00b4d8] text-white font-bold rounded-xl shadow-md hover:bg-[#0096c7] transition disabled:opacity-50"
         >
-          {submitting ? 'Resolving Coordinates & Submitting...' : 'Submit Incident Report'}
+          {submitting
+            ? "Resolving Coordinates & Submitting..."
+            : "Submit Incident Report"}
         </button>
       </form>
     </div>
