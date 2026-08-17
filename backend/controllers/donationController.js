@@ -3,27 +3,40 @@ const Campaign = require("../models/Campaign");
 const stripe = require("../config/stripe");
 
 // =====================================================
-// CONFIGURATION
+// DONATION CURRENCY
+// =====================================================
+//
+// The application uses Bangladeshi Taka (BDT).
+//
+// Stripe expects BDT amounts in the minor unit.
+//
+// Example:
+// ৳1,000 = 100000 poisha
+//
 // =====================================================
 
 const DONATION_CURRENCY = (process.env.STRIPE_CURRENCY || "bdt").toLowerCase();
 
-const getStripeAmountInMinorUnit = (amount) => {
-  return Math.round(Number(amount) * 100);
-};
+// =====================================================
+// DONATION LIMITS
+// =====================================================
+
+const MIN_DONATION_AMOUNT = 100;
+const MAX_DONATION_AMOUNT = 100000;
 
 // =====================================================
 // FINALIZE PAID DONATION
 // =====================================================
 //
-// Only the request that changes:
+// Only one request is allowed to change:
 //
 // Pending -> Paid
 //
-// is allowed to increase campaign.raisedAmount.
+// That request is also the only request allowed to
+// increase campaign.raisedAmount.
 //
-// This prevents duplicate webhook/receipt processing
-// from increasing the campaign total multiple times.
+// This prevents duplicate Stripe webhook processing
+// from increasing the campaign total more than once.
 // =====================================================
 
 const finalizePaidDonation = async ({
@@ -56,7 +69,7 @@ const finalizePaidDonation = async ({
     };
   }
 
-  // Only the Pending -> Paid transition reaches here.
+  // Only Pending -> Paid reaches here.
   await Campaign.findByIdAndUpdate(updatedDonation.campaign, {
     $inc: {
       raisedAmount: updatedDonation.amount,
@@ -73,6 +86,10 @@ const finalizePaidDonation = async ({
 
 // =====================================================
 // CREATE DONATION
+// =====================================================
+//
+// Kept for compatibility with the existing API.
+// Stripe frontend flow uses /checkout directly.
 // =====================================================
 
 const createDonation = async (req, res) => {
@@ -93,7 +110,23 @@ const createDonation = async (req, res) => {
       });
     }
 
-    const normalizedAmount = Math.round(donationAmount * 100) / 100;
+    if (donationAmount < MIN_DONATION_AMOUNT) {
+      return res.status(400).json({
+        message: `Minimum donation amount is ৳${MIN_DONATION_AMOUNT.toLocaleString("en-BD")}.`,
+      });
+    }
+
+    if (donationAmount > MAX_DONATION_AMOUNT) {
+      return res.status(400).json({
+        message: `Maximum donation amount is ৳${MAX_DONATION_AMOUNT.toLocaleString("en-BD")}.`,
+      });
+    }
+
+    if (!Number.isInteger(donationAmount)) {
+      return res.status(400).json({
+        message: "Donation amount must be a whole number of BDT.",
+      });
+    }
 
     const campaign = await Campaign.findById(campaignId);
 
@@ -112,7 +145,7 @@ const createDonation = async (req, res) => {
     const donation = await Donation.create({
       campaign: campaignId,
       donor: req.user._id,
-      amount: normalizedAmount,
+      amount: donationAmount,
       paymentStatus: "Pending",
       paymentMethod: "Stripe",
     });
@@ -132,7 +165,7 @@ const createDonation = async (req, res) => {
 };
 
 // =====================================================
-// GET ALL DONATIONS - ADMIN
+// GET ALL DONATIONS
 // =====================================================
 
 const getAllDonations = async (req, res) => {
@@ -195,9 +228,9 @@ const getDonationReceipt = async (req, res) => {
       });
     }
 
-    // ---------------------------------------------------
-    // Retrieve the real Stripe session
-    // ---------------------------------------------------
+    // --------------------------------------------------
+    // Retrieve Stripe Checkout Session
+    // --------------------------------------------------
 
     const session = await stripe.checkout.sessions.retrieve(sessionId);
 
@@ -207,6 +240,10 @@ const getDonationReceipt = async (req, res) => {
       });
     }
 
+    // --------------------------------------------------
+    // Get donation ID from metadata
+    // --------------------------------------------------
+
     const donationId = session.metadata?.donationId;
 
     if (!donationId) {
@@ -215,9 +252,9 @@ const getDonationReceipt = async (req, res) => {
       });
     }
 
-    // ---------------------------------------------------
+    // --------------------------------------------------
     // Find donation
-    // ---------------------------------------------------
+    // --------------------------------------------------
 
     let donation = await Donation.findById(donationId)
       .populate(
@@ -232,9 +269,9 @@ const getDonationReceipt = async (req, res) => {
       });
     }
 
-    // ---------------------------------------------------
-    // SECURITY: logged-in user must own donation
-    // ---------------------------------------------------
+    // --------------------------------------------------
+    // Security: receipt belongs to logged-in user
+    // --------------------------------------------------
 
     if (
       !donation.donor ||
@@ -245,9 +282,9 @@ const getDonationReceipt = async (req, res) => {
       });
     }
 
-    // ---------------------------------------------------
-    // SECURITY: Stripe session must belong to donation
-    // ---------------------------------------------------
+    // --------------------------------------------------
+    // Security: Stripe session must match donation
+    // --------------------------------------------------
 
     if (donation.stripeSessionId && donation.stripeSessionId !== session.id) {
       return res.status(403).json({
@@ -255,9 +292,9 @@ const getDonationReceipt = async (req, res) => {
       });
     }
 
-    // ---------------------------------------------------
-    // SECURITY: currency verification
-    // ---------------------------------------------------
+    // --------------------------------------------------
+    // Verify currency
+    // --------------------------------------------------
 
     if (
       session.currency &&
@@ -269,50 +306,9 @@ const getDonationReceipt = async (req, res) => {
       });
     }
 
-    // ---------------------------------------------------
-    // SECURITY: amount verification
-    // ---------------------------------------------------
-
-    const expectedStripeAmount = getStripeAmountInMinorUnit(donation.amount);
-
-    if (
-      session.amount_total !== null &&
-      Number(session.amount_total) !== expectedStripeAmount
-    ) {
-      return res.status(400).json({
-        message: "Stripe payment amount does not match the donation amount.",
-      });
-    }
-
-    // ---------------------------------------------------
-    // SECURITY: campaign verification
-    // ---------------------------------------------------
-
-    if (
-      session.metadata?.campaignId &&
-      String(session.metadata.campaignId) !== String(donation.campaign?._id)
-    ) {
-      return res.status(400).json({
-        message: "Stripe campaign information does not match the donation.",
-      });
-    }
-
-    // ---------------------------------------------------
-    // SECURITY: donor verification
-    // ---------------------------------------------------
-
-    if (
-      session.metadata?.donorId &&
-      String(session.metadata.donorId) !== String(req.user._id)
-    ) {
-      return res.status(403).json({
-        message: "Stripe donor information does not match the logged-in user.",
-      });
-    }
-
-    // ---------------------------------------------------
-    // If Stripe confirms payment, synchronize MongoDB.
-    // ---------------------------------------------------
+    // --------------------------------------------------
+    // Synchronize paid payment
+    // --------------------------------------------------
 
     if (session.payment_status === "paid") {
       await finalizePaidDonation({
@@ -329,9 +325,9 @@ const getDonationReceipt = async (req, res) => {
         .populate("donor", "name email");
     }
 
-    // ---------------------------------------------------
+    // --------------------------------------------------
     // Return receipt
-    // ---------------------------------------------------
+    // --------------------------------------------------
 
     return res.status(200).json({
       receipt: {
@@ -353,6 +349,7 @@ const getDonationReceipt = async (req, res) => {
 
         donor: {
           name: donation.donor?.name || "",
+
           email: donation.donor?.email || "",
         },
 
@@ -402,21 +399,39 @@ const createCheckoutSession = async (req, res) => {
 
     const donationAmount = Number(amount);
 
+    // ------------------------------------------------
+    // Validate amount
+    // ------------------------------------------------
+
     if (!Number.isFinite(donationAmount) || donationAmount <= 0) {
       return res.status(400).json({
         message: "Donation amount must be greater than zero.",
       });
     }
 
-    const normalizedAmount = Math.round(donationAmount * 100) / 100;
-
-    const stripeAmount = getStripeAmountInMinorUnit(normalizedAmount);
-
-    if (stripeAmount <= 0) {
+    if (donationAmount < MIN_DONATION_AMOUNT) {
       return res.status(400).json({
-        message: "Donation amount is too small.",
+        message: `Minimum donation amount is ৳${MIN_DONATION_AMOUNT.toLocaleString("en-BD")}.`,
       });
     }
+
+    if (donationAmount > MAX_DONATION_AMOUNT) {
+      return res.status(400).json({
+        message: `Maximum donation amount is ৳${MAX_DONATION_AMOUNT.toLocaleString("en-BD")}.`,
+      });
+    }
+
+    if (!Number.isInteger(donationAmount)) {
+      return res.status(400).json({
+        message: "Donation amount must be a whole number of BDT.",
+      });
+    }
+
+    const normalizedAmount = Math.round(donationAmount * 100) / 100;
+
+    // ------------------------------------------------
+    // Find campaign
+    // ------------------------------------------------
 
     const campaign = await Campaign.findById(campaignId);
 
@@ -426,15 +441,19 @@ const createCheckoutSession = async (req, res) => {
       });
     }
 
+    // ------------------------------------------------
+    // Campaign status
+    // ------------------------------------------------
+
     if (campaign.status !== "Active") {
       return res.status(400).json({
         message: "This campaign is not currently accepting donations.",
       });
     }
 
-    // ---------------------------------------------------
+    // ------------------------------------------------
     // Create pending donation
-    // ---------------------------------------------------
+    // ------------------------------------------------
 
     const donation = await Donation.create({
       campaign: campaignId,
@@ -445,9 +464,14 @@ const createCheckoutSession = async (req, res) => {
     });
 
     try {
-      // -------------------------------------------------
-      // Create Stripe Checkout
-      // -------------------------------------------------
+      // ------------------------------------------------
+      // Stripe Checkout
+      //
+      // Example:
+      //
+      // Application amount = ৳1,000
+      // Stripe amount = 100000 poisha
+      // ------------------------------------------------
 
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ["card"],
@@ -473,7 +497,7 @@ const createCheckoutSession = async (req, res) => {
                 description: campaign.description || "Disaster relief donation",
               },
 
-              unit_amount: stripeAmount,
+              unit_amount: Math.round(normalizedAmount * 100),
             },
 
             quantity: 1,
@@ -544,6 +568,7 @@ const cancelDonation = async (req, res) => {
 
     const donation = await Donation.findOne({
       stripeSessionId: sessionId,
+
       donor: req.user._id,
     });
 
@@ -553,9 +578,9 @@ const cancelDonation = async (req, res) => {
       });
     }
 
-    // ---------------------------------------------------
-    // Never mark a paid donation as failed.
-    // ---------------------------------------------------
+    // --------------------------------------------------
+    // Never change an already paid donation
+    // --------------------------------------------------
 
     if (
       donation.paymentStatus === "Paid" ||
@@ -563,9 +588,14 @@ const cancelDonation = async (req, res) => {
     ) {
       return res.status(200).json({
         message: "Donation has already been paid.",
+
         donation,
       });
     }
+
+    // --------------------------------------------------
+    // Only Pending donations can be cancelled
+    // --------------------------------------------------
 
     if (donation.paymentStatus === "Pending") {
       donation.paymentStatus = "Failed";
@@ -575,6 +605,7 @@ const cancelDonation = async (req, res) => {
 
     return res.status(200).json({
       message: "Donation payment cancelled.",
+
       donation,
     });
   } catch (error) {
@@ -602,7 +633,7 @@ const stripeWebhook = async (req, res) => {
   let event;
 
   // ---------------------------------------------------
-  // Verify Stripe webhook signature
+  // Verify Stripe signature
   // ---------------------------------------------------
 
   try {
@@ -645,9 +676,9 @@ const stripeWebhook = async (req, res) => {
         });
       }
 
-      // -------------------------------------------------
-      // Currency check
-      // -------------------------------------------------
+      // ------------------------------------------------
+      // Currency validation
+      // ------------------------------------------------
 
       if (
         session.currency &&
@@ -665,11 +696,11 @@ const stripeWebhook = async (req, res) => {
         });
       }
 
-      // -------------------------------------------------
-      // Amount check
-      // -------------------------------------------------
+      // ------------------------------------------------
+      // Amount validation
+      // ------------------------------------------------
 
-      const expectedStripeAmount = getStripeAmountInMinorUnit(donation.amount);
+      const expectedStripeAmount = Math.round(donation.amount * 100);
 
       if (
         session.amount_total !== null &&
@@ -677,7 +708,9 @@ const stripeWebhook = async (req, res) => {
       ) {
         console.error("Stripe amount mismatch:", {
           donationId: donation._id.toString(),
+
           expected: expectedStripeAmount,
+
           received: session.amount_total,
         });
 
@@ -686,9 +719,9 @@ const stripeWebhook = async (req, res) => {
         });
       }
 
-      // -------------------------------------------------
-      // Campaign check
-      // -------------------------------------------------
+      // ------------------------------------------------
+      // Campaign validation
+      // ------------------------------------------------
 
       if (
         session.metadata?.campaignId &&
@@ -701,9 +734,9 @@ const stripeWebhook = async (req, res) => {
         });
       }
 
-      // -------------------------------------------------
-      // Donor check
-      // -------------------------------------------------
+      // ------------------------------------------------
+      // Donor validation
+      // ------------------------------------------------
 
       if (
         session.metadata?.donorId &&
@@ -716,9 +749,9 @@ const stripeWebhook = async (req, res) => {
         });
       }
 
-      // -------------------------------------------------
-      // Finalize only when Stripe says paid
-      // -------------------------------------------------
+      // ------------------------------------------------
+      // Finalize only if paid
+      // ------------------------------------------------
 
       if (session.payment_status === "paid") {
         await finalizePaidDonation({
@@ -730,14 +763,14 @@ const stripeWebhook = async (req, res) => {
         });
       } else {
         console.log(
-          "Checkout completed but payment is not paid:",
+          "Checkout completed but payment is not marked paid:",
           session.payment_status,
         );
       }
     }
 
     // =================================================
-    // CHECKOUT EXPIRED
+    // EXPIRED CHECKOUT
     // =================================================
 
     if (event.type === "checkout.session.expired") {
@@ -748,6 +781,7 @@ const stripeWebhook = async (req, res) => {
       if (donationId) {
         const donation = await Donation.findOne({
           _id: donationId,
+
           paymentStatus: "Pending",
         });
 
@@ -757,7 +791,7 @@ const stripeWebhook = async (req, res) => {
           await donation.save();
 
           console.log(
-            "Expired donation marked Failed:",
+            "Expired Stripe donation marked Failed:",
             donation._id.toString(),
           );
         }
@@ -776,6 +810,7 @@ const stripeWebhook = async (req, res) => {
       if (donationId) {
         const donation = await Donation.findOne({
           _id: donationId,
+
           paymentStatus: "Pending",
         });
 
@@ -785,7 +820,7 @@ const stripeWebhook = async (req, res) => {
           await donation.save();
 
           console.log(
-            "Async failed donation marked Failed:",
+            "Async failed Stripe donation marked Failed:",
             donation._id.toString(),
           );
         }
@@ -805,9 +840,7 @@ const stripeWebhook = async (req, res) => {
         const donation = await Donation.findById(donationId);
 
         if (donation) {
-          const expectedStripeAmount = getStripeAmountInMinorUnit(
-            donation.amount,
-          );
+          const expectedAmount = Math.round(donation.amount * 100);
 
           const currencyMatches =
             !session.currency ||
@@ -815,7 +848,7 @@ const stripeWebhook = async (req, res) => {
 
           const amountMatches =
             session.amount_total === null ||
-            Number(session.amount_total) === expectedStripeAmount;
+            Number(session.amount_total) === expectedAmount;
 
           const campaignMatches =
             !session.metadata?.campaignId ||

@@ -692,7 +692,7 @@ export default function AdminDashboard() {
               className="
                 border-b
                 border-gray-100
-                bg-gradient-to-r
+                bg-linear-to-r
                 from-[#30475E]
                 to-[#3D5871]
                 px-6
@@ -1142,7 +1142,7 @@ export default function AdminDashboard() {
                         {formatMoney(campaign.remainingAmount)}
                       </td>
 
-                      <td className="min-w-[230px] px-6 py-5">
+                      <td className="min-w-57.5 px-6 py-5">
                         <div className="flex items-center gap-3">
                           <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-100">
                             <div

@@ -7,11 +7,15 @@ import DashboardSidebar from "../components/DashboardSidebar";
 import { getCampaign } from "../api/campaignApi";
 import { createCheckoutSession } from "../api/donationApi";
 
+const MIN_DONATION_AMOUNT = 100;
+const MAX_DONATION_AMOUNT = 100000;
+
 const CampaignDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
   const [campaign, setCampaign] = useState(null);
+
   const [loading, setLoading] = useState(true);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -21,6 +25,10 @@ const CampaignDetails = () => {
   const [donating, setDonating] = useState(false);
 
   const [donationError, setDonationError] = useState("");
+
+  // ===================================================
+  // FETCH CAMPAIGN
+  // ===================================================
 
   useEffect(() => {
     const fetchCampaign = async () => {
@@ -38,6 +46,10 @@ const CampaignDetails = () => {
     fetchCampaign();
   }, [id]);
 
+  // ===================================================
+  // DONATE
+  // ===================================================
+
   const handleDonate = async () => {
     setDonationError("");
 
@@ -50,17 +62,50 @@ const CampaignDetails = () => {
 
     const donationAmount = Number(amount);
 
-    if (!Number.isFinite(donationAmount) || donationAmount <= 0) {
-      setDonationError("Please enter a valid donation amount.");
+    // -------------------------------------------------
+    // Minimum
+    // -------------------------------------------------
+
+    if (
+      !Number.isFinite(donationAmount) ||
+      donationAmount < MIN_DONATION_AMOUNT
+    ) {
+      setDonationError(
+        `Minimum donation amount is ৳${MIN_DONATION_AMOUNT.toLocaleString(
+          "en-BD",
+        )}.`,
+      );
 
       return;
     }
+
+    // -------------------------------------------------
+    // Maximum
+    // -------------------------------------------------
+
+    if (donationAmount > MAX_DONATION_AMOUNT) {
+      setDonationError(
+        `Maximum donation amount is ৳${MAX_DONATION_AMOUNT.toLocaleString(
+          "en-BD",
+        )}.`,
+      );
+
+      return;
+    }
+
+    // -------------------------------------------------
+    // Whole number
+    // -------------------------------------------------
 
     if (!Number.isInteger(donationAmount)) {
-      setDonationError("Please enter a whole amount in BDT.");
+      setDonationError("Donation amount must be a whole number of BDT.");
 
       return;
     }
+
+    // -------------------------------------------------
+    // Campaign status
+    // -------------------------------------------------
 
     if (campaign?.status !== "Active") {
       setDonationError("This campaign is not currently accepting donations.");
@@ -73,6 +118,7 @@ const CampaignDetails = () => {
 
       const donationData = {
         campaignId: campaign._id,
+
         amount: donationAmount,
       };
 
@@ -95,6 +141,10 @@ const CampaignDetails = () => {
     }
   };
 
+  // ===================================================
+  // LOADING
+  // ===================================================
+
   if (loading) {
     return (
       <>
@@ -109,20 +159,25 @@ const CampaignDetails = () => {
     );
   }
 
+  // ===================================================
+  // NOT FOUND
+  // ===================================================
+
   if (!campaign) {
     return (
       <>
         <Navbar setSidebarOpen={setSidebarOpen} />
 
-        <div className="flex min-h-screen items-center justify-center">
+        <div className="flex min-h-screen items-center justify-center px-4">
           <div className="text-center">
             <p className="text-xl font-semibold text-[#222831]">
               Campaign not found
             </p>
 
             <button
+              type="button"
               onClick={() => navigate("/campaigns")}
-              className="mt-4 rounded-xl bg-[#00ADB5] px-5 py-3 font-semibold text-white hover:bg-[#0097A0]"
+              className="mt-4 rounded-xl bg-[#00ADB5] px-5 py-3 font-semibold text-white transition hover:bg-[#0097A0]"
             >
               Back to Campaigns
             </button>
@@ -132,11 +187,19 @@ const CampaignDetails = () => {
     );
   }
 
+  // ===================================================
+  // PROGRESS
+  // ===================================================
+
   const raised = Number(campaign.raisedAmount) || 0;
 
   const target = Number(campaign.targetAmount) || 0;
 
   const percentage = target > 0 ? Math.min((raised / target) * 100, 100) : 0;
+
+  // ===================================================
+  // UI
+  // ===================================================
 
   return (
     <div className="min-h-screen bg-[#F5F7FA]">
@@ -147,7 +210,9 @@ const CampaignDetails = () => {
 
         <main className="flex-1 overflow-x-hidden px-4 py-6 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-7xl">
-            {/* Banner */}
+            {/* =================================================
+                CAMPAIGN IMAGE
+            ================================================= */}
 
             <div className="overflow-hidden rounded-3xl shadow-lg">
               <img
@@ -156,12 +221,14 @@ const CampaignDetails = () => {
                   "https://placehold.co/1200x600/e2e8f0/64748b?text=Disaster+Relief"
                 }
                 alt={campaign.title}
-                className="h-[280px] w-full object-cover sm:h-[400px]"
+                className="h-70 w-full object-cover sm:h-100"
               />
             </div>
 
             <div className="mt-8 grid gap-8 lg:grid-cols-3">
-              {/* Campaign information */}
+              {/* =================================================
+                  CAMPAIGN INFORMATION
+              ================================================= */}
 
               <div className="lg:col-span-2">
                 <div className="rounded-3xl bg-white p-6 shadow-sm sm:p-8">
@@ -214,7 +281,9 @@ const CampaignDetails = () => {
                 </div>
               </div>
 
-              {/* Donation */}
+              {/* =================================================
+                  DONATION CARD
+              ================================================= */}
 
               <div>
                 <div className="sticky top-6 rounded-3xl bg-white p-6 shadow-sm">
@@ -227,7 +296,7 @@ const CampaignDetails = () => {
                   <div className="mt-6">
                     <div className="h-4 overflow-hidden rounded-full bg-gray-200">
                       <div
-                        className="h-full rounded-full bg-gradient-to-r from-[#00ADB5] to-blue-500"
+                        className="h-full rounded-full bg-linear-to-r from-[#00ADB5] to-blue-500"
                         style={{
                           width: `${percentage}%`,
                         }}
@@ -261,7 +330,7 @@ const CampaignDetails = () => {
                     </div>
                   </div>
 
-                  {/* Donation amount */}
+                  {/* Donation Amount */}
 
                   <div className="mt-7">
                     <label
@@ -279,10 +348,15 @@ const CampaignDetails = () => {
                       <input
                         id="donationAmount"
                         type="number"
-                        min="1"
+                        min={MIN_DONATION_AMOUNT}
+                        max={MAX_DONATION_AMOUNT}
                         step="1"
                         value={amount}
-                        onChange={(e) => setAmount(e.target.value)}
+                        onChange={(event) => {
+                          setAmount(event.target.value);
+
+                          setDonationError("");
+                        }}
                         disabled={donating}
                         className="w-full rounded-xl border border-gray-200 bg-white py-3 pl-10 pr-4 text-[#222831] outline-none transition focus:border-[#00ADB5] focus:ring-2 focus:ring-[#00ADB5]/20 disabled:bg-gray-100"
                         placeholder="Enter amount"
@@ -290,7 +364,7 @@ const CampaignDetails = () => {
                     </div>
 
                     <p className="mt-2 text-xs text-gray-500">
-                      Enter the amount you want to donate in Bangladeshi Taka.
+                      Minimum ৳100 · Maximum ৳100,000
                     </p>
 
                     {donationError && (
@@ -302,13 +376,13 @@ const CampaignDetails = () => {
                     )}
                   </div>
 
-                  {/* Donate */}
+                  {/* Donate Button */}
 
                   <button
                     type="button"
                     onClick={handleDonate}
                     disabled={donating || campaign.status !== "Active"}
-                    className="mt-6 w-full rounded-xl bg-[#00ADB5] py-4 font-bold text-white transition hover:bg-[#0097A0] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="mt-5 w-full rounded-xl bg-[#00ADB5] py-4 font-bold text-white transition hover:bg-[#0097A0] disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {donating
                       ? "Redirecting to Stripe..."
