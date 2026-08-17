@@ -14,8 +14,13 @@ const CampaignDetails = () => {
   const [campaign, setCampaign] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Sidebar state
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const [amount, setAmount] = useState("1000");
+
+  const [donating, setDonating] = useState(false);
+
+  const [donationError, setDonationError] = useState("");
 
   useEffect(() => {
     const fetchCampaign = async () => {
@@ -34,26 +39,59 @@ const CampaignDetails = () => {
   }, [id]);
 
   const handleDonate = async () => {
+    setDonationError("");
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    const donationAmount = Number(amount);
+
+    if (!Number.isFinite(donationAmount) || donationAmount <= 0) {
+      setDonationError("Please enter a valid donation amount.");
+
+      return;
+    }
+
+    if (!Number.isInteger(donationAmount)) {
+      setDonationError("Please enter a whole amount in BDT.");
+
+      return;
+    }
+
+    if (campaign?.status !== "Active") {
+      setDonationError("This campaign is not currently accepting donations.");
+
+      return;
+    }
+
     try {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        navigate("/login");
-
-        return;
-      }
+      setDonating(true);
 
       const donationData = {
         campaignId: campaign._id,
-
-        amount: 1000,
+        amount: donationAmount,
       };
 
       const response = await createCheckoutSession(donationData, token);
 
+      if (!response.data?.url) {
+        throw new Error("Stripe checkout URL was not returned.");
+      }
+
       window.location.href = response.data.url;
     } catch (error) {
       console.error("Donation failed:", error);
+
+      setDonationError(
+        error.response?.data?.message ||
+          "Unable to start the donation payment. Please try again.",
+      );
+
+      setDonating(false);
     }
   };
 
@@ -62,20 +100,8 @@ const CampaignDetails = () => {
       <>
         <Navbar setSidebarOpen={setSidebarOpen} />
 
-        <div
-          className="
-          flex
-          min-h-screen
-          items-center
-          justify-center
-        "
-        >
-          <p
-            className="
-            text-xl
-            font-semibold
-          "
-          >
+        <div className="flex min-h-screen items-center justify-center">
+          <p className="text-xl font-semibold text-[#222831]">
             Loading campaign...
           </p>
         </div>
@@ -88,22 +114,19 @@ const CampaignDetails = () => {
       <>
         <Navbar setSidebarOpen={setSidebarOpen} />
 
-        <div
-          className="
-          flex
-          min-h-screen
-          items-center
-          justify-center
-        "
-        >
-          <p
-            className="
-            text-xl
-            font-semibold
-          "
-          >
-            Campaign not found
-          </p>
+        <div className="flex min-h-screen items-center justify-center">
+          <div className="text-center">
+            <p className="text-xl font-semibold text-[#222831]">
+              Campaign not found
+            </p>
+
+            <button
+              onClick={() => navigate("/campaigns")}
+              className="mt-4 rounded-xl bg-[#00ADB5] px-5 py-3 font-semibold text-white hover:bg-[#0097A0]"
+            >
+              Back to Campaigns
+            </button>
+          </div>
         </div>
       </>
     );
@@ -116,172 +139,62 @@ const CampaignDetails = () => {
   const percentage = target > 0 ? Math.min((raised / target) * 100, 100) : 0;
 
   return (
-    <div
-      className="
-      min-h-screen
-      bg-[#F5F7FA]
-    "
-    >
+    <div className="min-h-screen bg-[#F5F7FA]">
       <Navbar setSidebarOpen={setSidebarOpen} />
 
-      <div
-        className="
-        flex
-        min-h-screen
-      "
-      >
+      <div className="flex min-h-screen">
         <DashboardSidebar open={sidebarOpen} setOpen={setSidebarOpen} />
 
-        <main
-          className="
-          flex-1
-          overflow-x-hidden
-
-          px-4
-          py-6
-
-          sm:px-6
-
-          lg:px-8
-          "
-        >
-          <div
-            className="
-            mx-auto
-            max-w-7xl
-            "
-          >
+        <main className="flex-1 overflow-x-hidden px-4 py-6 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-7xl">
             {/* Banner */}
 
-            <div
-              className="
-              overflow-hidden
-              rounded-3xl
-              shadow-lg
-              "
-            >
+            <div className="overflow-hidden rounded-3xl shadow-lg">
               <img
                 src={
                   campaign.image ||
                   "https://placehold.co/1200x600/e2e8f0/64748b?text=Disaster+Relief"
                 }
                 alt={campaign.title}
-                className="
-                h-[280px]
-                w-full
-                object-cover
-
-                sm:h-[400px]
-                "
+                className="h-[280px] w-full object-cover sm:h-[400px]"
               />
             </div>
 
-            <div
-              className="
-              mt-8
-              grid
-              gap-8
-
-              lg:grid-cols-3
-              "
-            >
-              {/* Campaign Info */}
+            <div className="mt-8 grid gap-8 lg:grid-cols-3">
+              {/* Campaign information */}
 
               <div className="lg:col-span-2">
-                <div
-                  className="
-                  rounded-3xl
-                  bg-white
-
-                  p-6
-
-                  shadow-sm
-
-                  sm:p-8
-                  "
-                >
-                  <div
-                    className="
-                    flex
-                    flex-wrap
-                    justify-between
-                    gap-3
-                    "
-                  >
-                    <span
-                      className="
-                      rounded-full
-                      bg-[#00ADB5]
-                      px-4
-                      py-2
-
-                      text-sm
-                      font-semibold
-                      text-white
-                      "
-                    >
+                <div className="rounded-3xl bg-white p-6 shadow-sm sm:p-8">
+                  <div className="flex flex-wrap justify-between gap-3">
+                    <span className="rounded-full bg-[#00ADB5] px-4 py-2 text-sm font-semibold text-white">
                       {campaign.disasterType || "Relief"}
                     </span>
 
                     <span
-                      className="
-                      rounded-full
-                      bg-green-600
-
-                      px-4
-                      py-2
-
-                      text-sm
-                      font-semibold
-                      text-white
-                      "
+                      className={`rounded-full px-4 py-2 text-sm font-semibold text-white ${
+                        campaign.status === "Active"
+                          ? "bg-green-600"
+                          : "bg-gray-500"
+                      }`}
                     >
-                      {campaign.status || "Active"}
+                      {campaign.status || "Unknown"}
                     </span>
                   </div>
 
-                  <h1
-                    className="
-                    mt-6
-
-                    text-3xl
-                    font-bold
-                    text-[#222831]
-
-                    sm:text-4xl
-                    "
-                  >
+                  <h1 className="mt-6 text-3xl font-bold text-[#222831] sm:text-4xl">
                     {campaign.title}
                   </h1>
 
-                  <p
-                    className="
-                    mt-5
-                    leading-7
-                    text-gray-600
-                    "
-                  >
+                  <p className="mt-5 leading-7 text-gray-600">
                     {campaign.description}
                   </p>
 
                   <div className="mt-8">
-                    <h2
-                      className="
-                      text-xl
-                      font-bold
-                      text-[#222831]
-                      "
-                    >
+                    <h2 className="text-xl font-bold text-[#222831]">
                       Campaign Information
                     </h2>
 
-                    <div
-                      className="
-                      mt-4
-                      space-y-3
-                      text-gray-600
-                      "
-                    >
+                    <div className="mt-4 space-y-3 text-gray-600">
                       <p>
                         📍 Location:
                         <span className="font-semibold">
@@ -301,128 +214,107 @@ const CampaignDetails = () => {
                 </div>
               </div>
 
-              {/* Donation Card */}
+              {/* Donation */}
 
               <div>
-                <div
-                  className="
-                  sticky
-                  top-6
-
-                  rounded-3xl
-                  bg-white
-
-                  p-6
-
-                  shadow-sm
-                  "
-                >
-                  <h2
-                    className="
-                    text-2xl
-                    font-bold
-                    text-[#222831]
-                    "
-                  >
+                <div className="sticky top-6 rounded-3xl bg-white p-6 shadow-sm">
+                  <h2 className="text-2xl font-bold text-[#222831]">
                     Donation Progress
                   </h2>
 
+                  {/* Progress */}
+
                   <div className="mt-6">
-                    <div
-                      className="
-                      h-4
-                      overflow-hidden
-                      rounded-full
-                      bg-gray-200
-                      "
-                    >
+                    <div className="h-4 overflow-hidden rounded-full bg-gray-200">
                       <div
-                        className="
-                        h-full
-                        rounded-full
-
-                        bg-gradient-to-r
-
-                        from-[#00ADB5]
-
-                        to-blue-500
-                        "
+                        className="h-full rounded-full bg-gradient-to-r from-[#00ADB5] to-blue-500"
                         style={{
                           width: `${percentage}%`,
                         }}
                       />
                     </div>
 
-                    <p
-                      className="
-                      mt-3
-
-                      text-right
-
-                      font-semibold
-
-                      text-[#00ADB5]
-                      "
-                    >
+                    <p className="mt-3 text-right font-semibold text-[#00ADB5]">
                       {percentage.toFixed(0)}% Funded
                     </p>
                   </div>
 
-                  <div
-                    className="
-                    mt-6
+                  {/* Raised / Goal */}
 
-                    flex
-
-                    justify-between
-                    "
-                  >
+                  <div className="mt-6 flex justify-between gap-4">
                     <div>
                       <p className="text-sm text-gray-500">Raised</p>
 
-                      <p
-                        className="
-                        text-xl
-                        font-bold
-                        text-green-600
-                      "
-                      >
-                        ৳ {raised.toLocaleString()}
+                      <p className="text-xl font-bold text-green-600">
+                        ৳ {raised.toLocaleString("en-BD")}
                       </p>
                     </div>
 
                     <div className="text-right">
                       <p className="text-sm text-gray-500">Goal</p>
 
-                      <p className="text-xl font-bold">
-                        {target ? `৳ ${target.toLocaleString()}` : "Not set"}
+                      <p className="text-xl font-bold text-[#222831]">
+                        {target
+                          ? `৳ ${target.toLocaleString("en-BD")}`
+                          : "Not set"}
                       </p>
                     </div>
                   </div>
 
+                  {/* Donation amount */}
+
+                  <div className="mt-7">
+                    <label
+                      htmlFor="donationAmount"
+                      className="mb-2 block text-sm font-semibold text-[#222831]"
+                    >
+                      Donation Amount
+                    </label>
+
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-[#30475E]">
+                        ৳
+                      </span>
+
+                      <input
+                        id="donationAmount"
+                        type="number"
+                        min="1"
+                        step="1"
+                        value={amount}
+                        onChange={(e) => setAmount(e.target.value)}
+                        disabled={donating}
+                        className="w-full rounded-xl border border-gray-200 bg-white py-3 pl-10 pr-4 text-[#222831] outline-none transition focus:border-[#00ADB5] focus:ring-2 focus:ring-[#00ADB5]/20 disabled:bg-gray-100"
+                        placeholder="Enter amount"
+                      />
+                    </div>
+
+                    <p className="mt-2 text-xs text-gray-500">
+                      Enter the amount you want to donate in Bangladeshi Taka.
+                    </p>
+
+                    {donationError && (
+                      <div className="mt-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+                        <p className="text-sm font-medium text-red-700">
+                          {donationError}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Donate */}
+
                   <button
+                    type="button"
                     onClick={handleDonate}
-                    className="
-                    mt-8
-
-                    w-full
-
-                    rounded-xl
-
-                    bg-[#00ADB5]
-
-                    py-4
-
-                    font-bold
-
-                    text-white
-
-                    transition
-
-                    hover:bg-[#0097A0]
-                    "
+                    disabled={donating || campaign.status !== "Active"}
+                    className="mt-6 w-full rounded-xl bg-[#00ADB5] py-4 font-bold text-white transition hover:bg-[#0097A0] disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    Donate Now
+                    {donating
+                      ? "Redirecting to Stripe..."
+                      : campaign.status === "Active"
+                        ? "Donate Now"
+                        : "Campaign Closed"}
                   </button>
                 </div>
               </div>
