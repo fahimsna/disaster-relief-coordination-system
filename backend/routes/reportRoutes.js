@@ -1,22 +1,12 @@
-const express = require('express');
-const router = express.Router();
+// backend/routes/reportRoutes.js
+const router = require('express').Router();
+const c = require('../controllers/reportController');
 
-const {
-    createReport,
-    getAllReports,
-    getReportById,
-    verifyReport
-} = require('../controllers/reportController');
-
-// Handles POST /api/reports and GET /api/reports
-router.route('/')
-    .post(createReport)
-    .get(getAllReports);
-
-// Handles GET /api/reports/:id
-router.get('/:id', getReportById);
-
-// Handles PUT /api/reports/:id/verify
-router.put('/:id/verify', verifyReport);
-
+router.post('/', c.createReport);          // File a report
+router.get('/', c.getAllReports);          // View all reports
+router.get('/:id', c.getReportById);       // View report by ID
+router.put('/:id/verify', c.verifyReport); // Admin verify report
+router.put('/:id/reject', c.rejectReport); // Admin reject report
+router.put('/:id/severity', c.updateSeverity); // Admin update severity
+router.put('/:id/resolve', c.resolveReport); // Admin resolve report
 module.exports = router;

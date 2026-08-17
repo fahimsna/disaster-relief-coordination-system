@@ -1,10 +1,8 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 
 import Navbar from "../components/Navbar";
 import DashboardSidebar from "../components/DashboardSidebar";
-
-import { getFundAllocationDashboard } from "../api/fundAllocationApi";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -12,6 +10,7 @@ export default function Dashboard() {
   // Sidebar state
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+<<<<<<< HEAD
   // Dashboard data
   const [dashboardData, setDashboardData] = useState(null);
 
@@ -152,8 +151,10 @@ export default function Dashboard() {
 
   const recentAllocations = dashboardData?.recentAllocations || [];
 
+=======
+>>>>>>> fa2469501dd2f773472c7c663117f8e61a6a31c1
   return (
-    <div className="min-h-screen bg-[#F5F7FA]">
+    <div className="min-h-screen bg-slate-50">
       <Navbar setSidebarOpen={setSidebarOpen} />
 
       <div className="flex min-h-screen">
@@ -161,69 +162,37 @@ export default function Dashboard() {
 
         <main
           className="
-            flex-1
-            p-4
-            sm:p-6
-            lg:p-8
+          flex-1
+
+          p-4
+
+          sm:p-6
+
+          lg:p-8
           "
         >
-          {/* Mobile Menu Button */}
-
-          <button
-            onClick={() => setSidebarOpen(true)}
+          <h1
             className="
-              mb-5
-              rounded-xl
-              bg-[#30475E]
-              px-4
-              py-2
-              text-white
-              md:hidden
+            text-2xl
+            font-bold
+
+            sm:text-3xl
             "
           >
-            ☰ Menu
-          </button>
+            Welcome, {user?.name} 👋
+          </h1>
 
-          {/* Header */}
-
-          <div>
-            <h1
-              className="
-                text-2xl
-                font-bold
-                text-[#222831]
-                sm:text-3xl
-              "
-            >
-              Welcome, {user?.name} 👋
-            </h1>
-
-            <p
-              className="
-                mt-2
-                text-gray-500
-              "
-            >
-              View campaign funding and relief fund allocation transparency.
-            </p>
-          </div>
-
-          {/* ------------------------------------------------ */}
-          {/* Summary Cards */}
-          {/* ------------------------------------------------ */}
-
-          <div
+          <p
             className="
-              mt-8
-              grid
-              grid-cols-1
-              gap-5
-              sm:grid-cols-2
-              xl:grid-cols-4
+            mt-2
+            text-gray-500
+            capitalize
             "
           >
-            {/* Total Raised */}
+            Role: {user?.role}
+          </p>
 
+<<<<<<< HEAD
             <div
               className="
                 rounded-2xl
@@ -848,6 +817,9 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
+=======
+          {/* Stats cards and donation history will go here */}
+>>>>>>> fa2469501dd2f773472c7c663117f8e61a6a31c1
         </main>
       </div>
     </div>

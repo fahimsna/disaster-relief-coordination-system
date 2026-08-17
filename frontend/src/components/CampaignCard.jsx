@@ -132,7 +132,7 @@ const CampaignCard = ({ campaign }) => {
               className="
               h-full
               rounded-full
-              bg-linear-to-r
+              bg-gradient-to-r
               from-[#00ADB5]
               to-blue-500
               "

@@ -6,7 +6,7 @@ const generateToken = require("../utils/generateToken");
 // @access Public
 const registerUser = async (req, res) => {
   try {
-    const { name, email, password, phone, role } = req.body;
+    const { name, email, password, role } = req.body;
 
     // Validation
     if (!name || !email || !password) {
@@ -29,7 +29,6 @@ const registerUser = async (req, res) => {
       name,
       email,
       password,
-      phone,
       role,
     });
 

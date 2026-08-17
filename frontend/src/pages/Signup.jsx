@@ -27,11 +27,7 @@ export default function Signup() {
     try {
       // NOTE: backend User schema missed `phone`, ping M3
       await signup(form);
-      if (form.role === "volunteer") {
-        navigate("/register");
-      } else {
-        navigate("/dashboard");
-      }
+      navigate("/dashboard");
     } catch (err) {
       setError(err.response?.data?.message || "Signup failed. Try again.");
     } finally {

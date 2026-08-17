@@ -167,11 +167,11 @@ const CampaignDetails = () => {
                 }
                 alt={campaign.title}
                 className="
-                h-70
+                h-[280px]
                 w-full
                 object-cover
 
-                sm:h-100
+                sm:h-[400px]
                 "
               />
             </div>
@@ -341,7 +341,7 @@ const CampaignDetails = () => {
                         h-full
                         rounded-full
 
-                        bg-linear-to-r
+                        bg-gradient-to-r
 
                         from-[#00ADB5]
 
