@@ -1,26 +1,18 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 
 import Navbar from "../components/Navbar";
 import DashboardSidebar from "../components/DashboardSidebar";
 
+import { getFundAllocationDashboard } from "../api/fundAllocationApi";
+
 export default function Dashboard() {
   const { user } = useAuth();
 
-  // Sidebar state
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-<<<<<<< HEAD
-  // Dashboard data
   const [dashboardData, setDashboardData] = useState(null);
-
-  // Loading / error
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-  // --------------------------------------------------
-  // Fetch transparency dashboard
-  // --------------------------------------------------
 
   const fetchDashboard = async () => {
     try {
@@ -47,10 +39,6 @@ export default function Dashboard() {
   useEffect(() => {
     fetchDashboard();
   }, []);
-
-  // --------------------------------------------------
-  // Loading
-  // --------------------------------------------------
 
   if (loading) {
     return (
@@ -86,10 +74,6 @@ export default function Dashboard() {
       </div>
     );
   }
-
-  // --------------------------------------------------
-  // Error
-  // --------------------------------------------------
 
   if (error) {
     return (
@@ -139,20 +123,11 @@ export default function Dashboard() {
     );
   }
 
-  // --------------------------------------------------
-  // Data
-  // --------------------------------------------------
-
   const summary = dashboardData?.summary || {};
-
   const campaignBreakdown = dashboardData?.campaignBreakdown || [];
-
   const categoryBreakdown = dashboardData?.categoryBreakdown || [];
-
   const recentAllocations = dashboardData?.recentAllocations || [];
 
-=======
->>>>>>> fa2469501dd2f773472c7c663117f8e61a6a31c1
   return (
     <div className="min-h-screen bg-slate-50">
       <Navbar setSidebarOpen={setSidebarOpen} />
@@ -160,23 +135,13 @@ export default function Dashboard() {
       <div className="flex min-h-screen">
         <DashboardSidebar open={sidebarOpen} setOpen={setSidebarOpen} />
 
-        <main
-          className="
-          flex-1
-
-          p-4
-
-          sm:p-6
-
-          lg:p-8
-          "
-        >
+        <main className="flex-1 p-4 sm:p-6 lg:p-8">
           <h1
             className="
-            text-2xl
-            font-bold
-
-            sm:text-3xl
+              text-2xl
+              font-bold
+              text-[#222831]
+              sm:text-3xl
             "
           >
             Welcome, {user?.name} 👋
@@ -184,15 +149,28 @@ export default function Dashboard() {
 
           <p
             className="
-            mt-2
-            text-gray-500
-            capitalize
+              mt-2
+              text-gray-500
+              capitalize
             "
           >
             Role: {user?.role}
           </p>
 
-<<<<<<< HEAD
+          {/* Summary Cards */}
+
+          <div
+            className="
+              mt-8
+              grid
+              grid-cols-1
+              gap-5
+              sm:grid-cols-2
+              xl:grid-cols-4
+            "
+          >
+            {/* Total Raised */}
+
             <div
               className="
                 rounded-2xl
@@ -312,9 +290,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* ------------------------------------------------ */}
           {/* Campaign Breakdown */}
-          {/* ------------------------------------------------ */}
 
           <section
             className="
@@ -584,9 +560,7 @@ export default function Dashboard() {
             )}
           </section>
 
-          {/* ------------------------------------------------ */}
           {/* Category + Recent Allocations */}
-          {/* ------------------------------------------------ */}
 
           <div
             className="
@@ -775,9 +749,7 @@ export default function Dashboard() {
             </section>
           </div>
 
-          {/* ------------------------------------------------ */}
           {/* Dashboard Footer Information */}
-          {/* ------------------------------------------------ */}
 
           <div
             className="
@@ -817,9 +789,6 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
-=======
-          {/* Stats cards and donation history will go here */}
->>>>>>> fa2469501dd2f773472c7c663117f8e61a6a31c1
         </main>
       </div>
     </div>
