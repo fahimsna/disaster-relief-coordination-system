@@ -89,6 +89,20 @@ export default function MyDonations() {
   };
 
   // =====================================================
+  // RECEIPT LINK
+  // =====================================================
+
+  const getReceiptLink = (donation) => {
+    if (!donation?.stripeSessionId) {
+      return null;
+    }
+
+    return `/payment-success?session_id=${encodeURIComponent(
+      donation.stripeSessionId,
+    )}`;
+  };
+
+  // =====================================================
   // LOADING
   // =====================================================
 
@@ -101,7 +115,7 @@ export default function MyDonations() {
           <DashboardSidebar open={sidebarOpen} setOpen={setSidebarOpen} />
 
           <main className="flex-1 p-6">
-            <div className="flex min-h-100 items-center justify-center">
+            <div className="flex min-h-[400px] items-center justify-center">
               <div className="text-center">
                 <div
                   className="
@@ -450,23 +464,170 @@ export default function MyDonations() {
                       </thead>
 
                       <tbody>
-                        {donations.map((donation) => (
-                          <tr
-                            key={donation._id}
+                        {donations.map((donation) => {
+                          const receiptLink = getReceiptLink(donation);
+
+                          return (
+                            <tr
+                              key={donation._id}
+                              className="
+                                border-b
+                                border-gray-50
+                                last:border-0
+                                hover:bg-gray-50
+                              "
+                            >
+                              {/* Campaign */}
+
+                              <td className="px-6 py-5">
+                                <p className="font-semibold text-[#222831]">
+                                  {donation.campaign?.title ||
+                                    "Campaign unavailable"}
+                                </p>
+
+                                {donation.campaign?.disasterType && (
+                                  <p className="mt-1 text-xs text-gray-400">
+                                    {donation.campaign.disasterType}
+                                  </p>
+                                )}
+
+                                {donation.campaign?.location && (
+                                  <p className="mt-1 text-xs text-gray-400">
+                                    {donation.campaign.location}
+                                  </p>
+                                )}
+                              </td>
+
+                              {/* Amount */}
+
+                              <td className="px-6 py-5">
+                                <span className="font-bold text-[#00ADB5]">
+                                  ৳
+                                  {Number(donation.amount || 0).toLocaleString(
+                                    "en-BD",
+                                  )}
+                                </span>
+                              </td>
+
+                              {/* Payment Method */}
+
+                              <td className="px-6 py-5">
+                                <span className="text-sm font-medium text-gray-700">
+                                  {donation.paymentMethod || "Stripe"}
+                                </span>
+                              </td>
+
+                              {/* Status */}
+
+                              <td className="px-6 py-5">
+                                <span
+                                  className={`
+                                    inline-flex
+                                    rounded-full
+                                    px-3
+                                    py-1
+                                    text-xs
+                                    font-semibold
+                                    ${getStatusStyle(donation.paymentStatus)}
+                                  `}
+                                >
+                                  {donation.paymentStatus || "Unknown"}
+                                </span>
+                              </td>
+
+                              {/* Date */}
+
+                              <td className="px-6 py-5">
+                                <p className="text-sm text-gray-600">
+                                  {donation.createdAt
+                                    ? new Date(
+                                        donation.createdAt,
+                                      ).toLocaleDateString("en-GB", {
+                                        day: "2-digit",
+                                        month: "short",
+                                        year: "numeric",
+                                      })
+                                    : "N/A"}
+                                </p>
+                              </td>
+
+                              {/* Receipt */}
+
+                              <td className="px-6 py-5">
+                                {String(
+                                  donation.paymentStatus,
+                                ).toLowerCase() === "paid" && receiptLink ? (
+                                  <Link
+                                    to={receiptLink}
+                                    className="
+                                      inline-flex
+                                      items-center
+                                      rounded-lg
+                                      bg-green-50
+                                      px-3
+                                      py-2
+                                      text-sm
+                                      font-semibold
+                                      text-green-700
+                                      transition
+                                      hover:bg-green-100
+                                    "
+                                  >
+                                    View Receipt
+                                  </Link>
+                                ) : (
+                                  <span className="text-xs text-gray-400">
+                                    Not available
+                                  </span>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* =================================================
+                      MOBILE / TABLET CARDS
+                  ================================================= */}
+
+                  <div className="space-y-4 p-4 lg:hidden">
+                    {donations.map((donation) => {
+                      const receiptLink = getReceiptLink(donation);
+
+                      return (
+                        <div
+                          key={donation._id}
+                          className="
+                            rounded-2xl
+                            border
+                            border-gray-100
+                            bg-white
+                            p-5
+                          "
+                        >
+                          {/* Header */}
+
+                          <div
                             className="
-                              border-b
-                              border-gray-50
-                              last:border-0
-                              hover:bg-gray-50
+                              flex
+                              items-start
+                              justify-between
+                              gap-4
                             "
                           >
-                            {/* Campaign */}
-
-                            <td className="px-6 py-5">
-                              <p className="font-semibold text-[#222831]">
+                            <div className="min-w-0">
+                              <h3
+                                className="
+                                  truncate
+                                  font-semibold
+                                  text-[#222831]
+                                "
+                              >
                                 {donation.campaign?.title ||
                                   "Campaign unavailable"}
-                              </p>
+                              </h3>
 
                               {donation.campaign?.disasterType && (
                                 <p className="mt-1 text-xs text-gray-400">
@@ -479,49 +640,56 @@ export default function MyDonations() {
                                   {donation.campaign.location}
                                 </p>
                               )}
-                            </td>
+                            </div>
 
-                            {/* Amount */}
+                            <span
+                              className={`
+                                shrink-0
+                                rounded-full
+                                px-3
+                                py-1
+                                text-xs
+                                font-semibold
+                                ${getStatusStyle(donation.paymentStatus)}
+                              `}
+                            >
+                              {donation.paymentStatus || "Unknown"}
+                            </span>
+                          </div>
 
-                            <td className="px-6 py-5">
-                              <span className="font-bold text-[#00ADB5]">
+                          {/* Information */}
+
+                          <div
+                            className="
+                              mt-5
+                              grid
+                              grid-cols-2
+                              gap-4
+                            "
+                          >
+                            <div>
+                              <p className="text-xs text-gray-400">Amount</p>
+
+                              <p className="mt-1 font-bold text-[#00ADB5]">
                                 ৳
                                 {Number(donation.amount || 0).toLocaleString(
                                   "en-BD",
                                 )}
-                              </span>
-                            </td>
+                              </p>
+                            </div>
 
-                            {/* Payment Method */}
+                            <div>
+                              <p className="text-xs text-gray-400">Payment</p>
 
-                            <td className="px-6 py-5">
-                              <span className="text-sm font-medium text-gray-700">
+                              <p className="mt-1 font-semibold text-gray-700">
                                 {donation.paymentMethod || "Stripe"}
-                              </span>
-                            </td>
+                              </p>
+                            </div>
 
-                            {/* Status */}
+                            <div>
+                              <p className="text-xs text-gray-400">Date</p>
 
-                            <td className="px-6 py-5">
-                              <span
-                                className={`
-                                  inline-flex
-                                  rounded-full
-                                  px-3
-                                  py-1
-                                  text-xs
-                                  font-semibold
-                                  ${getStatusStyle(donation.paymentStatus)}
-                                `}
-                              >
-                                {donation.paymentStatus || "Unknown"}
-                              </span>
-                            </td>
-
-                            {/* Date */}
-
-                            <td className="px-6 py-5">
-                              <p className="text-sm text-gray-600">
+                              <p className="mt-1 font-semibold text-gray-700">
                                 {donation.createdAt
                                   ? new Date(
                                       donation.createdAt,
@@ -532,162 +700,56 @@ export default function MyDonations() {
                                     })
                                   : "N/A"}
                               </p>
-                            </td>
+                            </div>
 
-                            {/* Receipt */}
-
-                            <td className="px-6 py-5">
-                              {String(donation.paymentStatus).toLowerCase() ===
-                              "paid" ? (
-                                <Link
-                                  to="/donations"
-                                  className="
-                                    text-sm
-                                    font-semibold
-                                    text-[#00ADB5]
-                                    hover:underline
-                                  "
-                                  title="Receipts can be accessed from the payment success page."
-                                >
-                                  Paid
-                                </Link>
-                              ) : (
-                                <span className="text-xs text-gray-400">
-                                  Not available
-                                </span>
-                              )}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-
-                  {/* =================================================
-                      MOBILE / TABLET CARDS
-                  ================================================= */}
-
-                  <div className="space-y-4 p-4 lg:hidden">
-                    {donations.map((donation) => (
-                      <div
-                        key={donation._id}
-                        className="
-                          rounded-2xl
-                          border
-                          border-gray-100
-                          p-5
-                        "
-                      >
-                        {/* Header */}
-
-                        <div
-                          className="
-                            flex
-                            items-start
-                            justify-between
-                            gap-4
-                          "
-                        >
-                          <div>
-                            <h3
-                              className="
-                                font-semibold
-                                text-[#222831]
-                              "
-                            >
-                              {donation.campaign?.title ||
-                                "Campaign unavailable"}
-                            </h3>
-
-                            {donation.campaign?.disasterType && (
-                              <p className="mt-1 text-xs text-gray-400">
-                                {donation.campaign.disasterType}
+                            <div>
+                              <p className="text-xs text-gray-400">
+                                Transaction
                               </p>
-                            )}
+
+                              <p className="mt-1 truncate text-xs font-medium text-gray-600">
+                                {donation.transactionId || "Not available"}
+                              </p>
+                            </div>
                           </div>
 
-                          <span
-                            className={`
-                              shrink-0
-                              rounded-full
-                              px-3
-                              py-1
-                              text-xs
-                              font-semibold
-                              ${getStatusStyle(donation.paymentStatus)}
-                            `}
-                          >
-                            {donation.paymentStatus || "Unknown"}
-                          </span>
+                          {/* Receipt */}
+
+                          {String(donation.paymentStatus).toLowerCase() ===
+                            "paid" && receiptLink ? (
+                            <div className="mt-5 border-t border-gray-100 pt-4">
+                              <Link
+                                to={receiptLink}
+                                className="
+                                  inline-flex
+                                  w-full
+                                  items-center
+                                  justify-center
+                                  rounded-xl
+                                  bg-[#00ADB5]
+                                  px-4
+                                  py-3
+                                  text-sm
+                                  font-semibold
+                                  text-white
+                                  transition
+                                  hover:bg-[#0097A0]
+                                "
+                              >
+                                View Donation Receipt
+                              </Link>
+                            </div>
+                          ) : (
+                            <div className="mt-5 border-t border-gray-100 pt-4">
+                              <span className="text-xs text-gray-400">
+                                Receipt will be available after successful
+                                payment confirmation.
+                              </span>
+                            </div>
+                          )}
                         </div>
-
-                        {/* Information */}
-
-                        <div
-                          className="
-                            mt-5
-                            grid
-                            grid-cols-2
-                            gap-4
-                          "
-                        >
-                          <div>
-                            <p className="text-xs text-gray-400">Amount</p>
-
-                            <p className="mt-1 font-bold text-[#00ADB5]">
-                              ৳
-                              {Number(donation.amount || 0).toLocaleString(
-                                "en-BD",
-                              )}
-                            </p>
-                          </div>
-
-                          <div>
-                            <p className="text-xs text-gray-400">Payment</p>
-
-                            <p className="mt-1 font-semibold text-gray-700">
-                              {donation.paymentMethod || "Stripe"}
-                            </p>
-                          </div>
-
-                          <div>
-                            <p className="text-xs text-gray-400">Date</p>
-
-                            <p className="mt-1 font-semibold text-gray-700">
-                              {donation.createdAt
-                                ? new Date(
-                                    donation.createdAt,
-                                  ).toLocaleDateString("en-GB", {
-                                    day: "2-digit",
-                                    month: "short",
-                                    year: "numeric",
-                                  })
-                                : "N/A"}
-                            </p>
-                          </div>
-
-                          <div>
-                            <p className="text-xs text-gray-400">Transaction</p>
-
-                            <p className="mt-1 truncate text-xs font-medium text-gray-600">
-                              {donation.transactionId || "Not available"}
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Location */}
-
-                        {donation.campaign?.location && (
-                          <div className="mt-4">
-                            <p className="text-xs text-gray-400">Location</p>
-
-                            <p className="mt-1 text-sm font-medium text-gray-700">
-                              {donation.campaign.location}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </>
               )}
