@@ -1,30 +1,61 @@
 const express = require("express");
+
 const router = express.Router();
 
 const {
   createDonation,
   getMyDonations,
   getAllDonations,
+  getDonationReceipt,
   createCheckoutSession,
+  cancelDonation,
   stripeWebhook,
 } = require("../controllers/donationController");
 
 const { protect } = require("../middleware/authMiddleware");
 const authorizeRoles = require("../middleware/roleMiddleware");
 
-// Stripe Webhook (must NOT use protect middleware)
+// =====================================================
+// STRIPE WEBHOOK
+// =====================================================
+
+// Stripe does not use our authentication middleware.
 router.post("/webhook", stripeWebhook);
 
-// Create Donation
+// =====================================================
+// DONATION CREATION
+// =====================================================
+
 router.post("/", protect, createDonation);
 
-// Create Stripe Checkout Session
+// =====================================================
+// STRIPE CHECKOUT
+// =====================================================
+
 router.post("/checkout", protect, createCheckoutSession);
 
-// Logged-in user's donation history
+// =====================================================
+// DONATION RECEIPT
+// =====================================================
+
+router.get("/receipt/:sessionId", protect, getDonationReceipt);
+
+// =====================================================
+// CANCELLED DONATION
+// =====================================================
+
+router.put("/cancel/:sessionId", protect, cancelDonation);
+
+// =====================================================
+// DONATION HISTORY
+// =====================================================
+
 router.get("/my", protect, getMyDonations);
 
-// Admin - View all donations
+// =====================================================
+// ADMIN - ALL DONATIONS
+// =====================================================
+
 router.get("/", protect, authorizeRoles("admin"), getAllDonations);
 
 module.exports = router;

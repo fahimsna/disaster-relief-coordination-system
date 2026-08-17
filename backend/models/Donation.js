@@ -26,6 +26,13 @@ const donationSchema = new mongoose.Schema(
       default: "Pending",
     },
 
+    // Stripe Checkout Session ID
+    stripeSessionId: {
+      type: String,
+      default: "",
+    },
+
+    // Stripe Payment Intent ID
     transactionId: {
       type: String,
       default: "",
