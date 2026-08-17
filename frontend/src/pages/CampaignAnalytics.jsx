@@ -835,7 +835,7 @@ export default function CampaignAnalytics() {
                           {formatMoney(campaign.averageDonation)}
                         </td>
 
-                        <td className="min-w-[210px] px-6 py-5">
+                        <td className="min-w-52.5 px-6 py-5">
                           <div className="flex items-center gap-3">
                             <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-100">
                               <div
