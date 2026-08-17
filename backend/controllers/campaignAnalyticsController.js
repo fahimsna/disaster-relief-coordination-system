@@ -5,31 +5,43 @@ const Campaign = require("../models/Campaign");
 // CAMPAIGN ANALYTICS
 // =====================================================
 
-// @desc Get donation analytics for campaigns
-// @route GET /api/campaign-analytics
-// @access Protected
+// @desc    Get donation analytics for campaigns
+// @route   GET /api/campaign-analytics
+// @access  Admin
 const getCampaignAnalytics = async (req, res) => {
   try {
-    // --------------------------------------------------
-    // Only successful donations count as actual funds.
-    // Pending / Failed payments are excluded.
-    // --------------------------------------------------
+    // ===================================================
+    // SECURITY
+    // ===================================================
 
+    if (!req.user || req.user.role !== "admin") {
+      return res.status(403).json({
+        message: "Access denied. Admins only.",
+      });
+    }
+
+    // ===================================================
+    // FILTER
+    // ===================================================
+
+    // Only successful donations count as actual funds.
     const paidFilter = {
       paymentStatus: "Paid",
     };
 
-    // --------------------------------------------------
-    // Total paid donation amount
-    // --------------------------------------------------
+    // ===================================================
+    // TOTAL RAISED
+    // ===================================================
 
     const totalRaisedResult = await Donation.aggregate([
       {
         $match: paidFilter,
       },
+
       {
         $group: {
           _id: null,
+
           totalRaised: {
             $sum: "$amount",
           },
@@ -37,26 +49,44 @@ const getCampaignAnalytics = async (req, res) => {
       },
     ]);
 
-    const totalRaised = totalRaisedResult[0]?.totalRaised || 0;
+    const totalRaised = Number(totalRaisedResult[0]?.totalRaised || 0);
 
-    // --------------------------------------------------
-    // Total number of successful donations
-    // --------------------------------------------------
+    // ===================================================
+    // TOTAL SUCCESSFUL DONATIONS
+    // ===================================================
 
     const totalDonations = await Donation.countDocuments(paidFilter);
 
-    // --------------------------------------------------
-    // Average successful donation
-    // --------------------------------------------------
+    // ===================================================
+    // AVERAGE DONATION
+    // ===================================================
 
     const averageDonation =
       totalDonations > 0 ? totalRaised / totalDonations : 0;
 
-    // --------------------------------------------------
-    // Campaign-wise donation analytics
-    // --------------------------------------------------
+    // ===================================================
+    // GET ALL CAMPAIGNS
+    // ===================================================
+    //
+    // IMPORTANT:
+    // We start from Campaign instead of Donation.
+    //
+    // This means campaigns with ZERO donations are also
+    // included in the analytics dashboard.
+    // ===================================================
 
-    const campaignAnalytics = await Donation.aggregate([
+    const campaigns = await Campaign.find()
+      .populate("createdBy", "name email")
+      .sort({
+        createdAt: -1,
+      })
+      .lean();
+
+    // ===================================================
+    // GET PAID DONATION AGGREGATES BY CAMPAIGN
+    // ===================================================
+
+    const donationAnalytics = await Donation.aggregate([
       {
         $match: paidFilter,
       },
@@ -78,85 +108,96 @@ const getCampaignAnalytics = async (req, res) => {
           },
         },
       },
-
-      {
-        $lookup: {
-          from: "campaigns",
-          localField: "_id",
-          foreignField: "_id",
-          as: "campaign",
-        },
-      },
-
-      {
-        $unwind: {
-          path: "$campaign",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-
-      {
-        $project: {
-          _id: 0,
-
-          campaignId: "$_id",
-
-          title: {
-            $ifNull: ["$campaign.title", "Campaign unavailable"],
-          },
-
-          disasterType: {
-            $ifNull: ["$campaign.disasterType", ""],
-          },
-
-          location: {
-            $ifNull: ["$campaign.location", ""],
-          },
-
-          targetAmount: {
-            $ifNull: ["$campaign.targetAmount", 0],
-          },
-
-          totalRaised: 1,
-
-          donationCount: 1,
-
-          averageDonation: {
-            $round: ["$averageDonation", 2],
-          },
-        },
-      },
-
-      {
-        $sort: {
-          totalRaised: -1,
-        },
-      },
     ]);
 
-    // --------------------------------------------------
-    // Add percentage of total funds
-    // --------------------------------------------------
+    // ===================================================
+    // CONVERT AGGREGATE DATA INTO QUICK LOOKUP MAP
+    // ===================================================
 
-    const campaignBreakdown = campaignAnalytics.map((campaign) => ({
-      ...campaign,
+    const donationMap = new Map();
 
-      percentageOfTotal:
-        totalRaised > 0
-          ? Number(((campaign.totalRaised / totalRaised) * 100).toFixed(2))
-          : 0,
+    donationAnalytics.forEach((item) => {
+      donationMap.set(String(item._id), {
+        totalRaised: Number(item.totalRaised || 0),
 
-      targetProgress:
-        campaign.targetAmount > 0
-          ? Number(
-              ((campaign.totalRaised / campaign.targetAmount) * 100).toFixed(2),
-            )
-          : 0,
-    }));
+        donationCount: Number(item.donationCount || 0),
 
-    // --------------------------------------------------
-    // Payment status summary
-    // --------------------------------------------------
+        averageDonation: Number(item.averageDonation || 0),
+      });
+    });
+
+    // ===================================================
+    // CAMPAIGN BREAKDOWN
+    // ===================================================
+
+    const campaignBreakdown = campaigns
+      .map((campaign) => {
+        const donationData = donationMap.get(String(campaign._id)) || {
+          totalRaised: 0,
+          donationCount: 0,
+          averageDonation: 0,
+        };
+
+        const campaignRaised = donationData.totalRaised;
+
+        const targetAmount = Number(campaign.targetAmount || 0);
+
+        const percentageOfTotal =
+          totalRaised > 0
+            ? Number(((campaignRaised / totalRaised) * 100).toFixed(2))
+            : 0;
+
+        const targetProgress =
+          targetAmount > 0
+            ? Number(((campaignRaised / targetAmount) * 100).toFixed(2))
+            : 0;
+
+        return {
+          campaignId: campaign._id,
+
+          title: campaign.title,
+
+          description: campaign.description,
+
+          disasterType: campaign.disasterType,
+
+          location: campaign.location,
+
+          image: campaign.image || "",
+
+          status: campaign.status,
+
+          startDate: campaign.startDate,
+
+          endDate: campaign.endDate,
+
+          createdAt: campaign.createdAt,
+
+          targetAmount,
+
+          // Use successful donations as the source of
+          // truth for analytics.
+          totalRaised: campaignRaised,
+
+          // Keep the campaign's stored raisedAmount too,
+          // so the dashboard can identify inconsistencies
+          // if they ever occur.
+          recordedRaisedAmount: Number(campaign.raisedAmount || 0),
+
+          donationCount: donationData.donationCount,
+
+          averageDonation: Number(donationData.averageDonation.toFixed(2)),
+
+          percentageOfTotal,
+
+          targetProgress,
+        };
+      })
+      .sort((a, b) => Number(b.totalRaised) - Number(a.totalRaised));
+
+    // ===================================================
+    // PAYMENT STATUS SUMMARY
+    // ===================================================
 
     const paymentStatusSummary = await Donation.aggregate([
       {
@@ -176,8 +217,11 @@ const getCampaignAnalytics = async (req, res) => {
       {
         $project: {
           _id: 0,
+
           status: "$_id",
+
           count: 1,
+
           amount: 1,
         },
       },
@@ -189,9 +233,9 @@ const getCampaignAnalytics = async (req, res) => {
       },
     ]);
 
-    // --------------------------------------------------
-    // Recent successful donations
-    // --------------------------------------------------
+    // ===================================================
+    // RECENT SUCCESSFUL DONATIONS
+    // ===================================================
 
     const recentDonations = await Donation.find({
       paymentStatus: "Paid",
@@ -204,9 +248,18 @@ const getCampaignAnalytics = async (req, res) => {
       .limit(10)
       .lean();
 
-    // --------------------------------------------------
-    // Response
-    // --------------------------------------------------
+    // ===================================================
+    // TOP CAMPAIGN
+    // ===================================================
+
+    const topCampaign =
+      campaignBreakdown.length > 0 && campaignBreakdown[0].totalRaised > 0
+        ? campaignBreakdown[0]
+        : null;
+
+    // ===================================================
+    // RESPONSE
+    // ===================================================
 
     res.status(200).json({
       summary: {
@@ -216,7 +269,29 @@ const getCampaignAnalytics = async (req, res) => {
 
         averageDonation: Number(averageDonation.toFixed(2)),
 
-        campaignCount: campaignAnalytics.length,
+        campaignCount: campaigns.length,
+
+        campaignsWithDonations: campaignBreakdown.filter(
+          (campaign) => campaign.donationCount > 0,
+        ).length,
+
+        campaignsWithoutDonations: campaignBreakdown.filter(
+          (campaign) => campaign.donationCount === 0,
+        ).length,
+
+        topCampaign: topCampaign
+          ? {
+              campaignId: topCampaign.campaignId,
+
+              title: topCampaign.title,
+
+              totalRaised: topCampaign.totalRaised,
+
+              targetAmount: topCampaign.targetAmount,
+
+              targetProgress: topCampaign.targetProgress,
+            }
+          : null,
       },
 
       campaignBreakdown,
