@@ -6,13 +6,18 @@ const {
   getCampaignAnalytics,
 } = require("../controllers/campaignAnalyticsController");
 
-const { protect } = require("../middleware/authMiddleware");
+const {
+  protect,
+} = require("../middleware/authMiddleware");
 
 // =====================================================
 // CAMPAIGN ANALYTICS
 // =====================================================
 
-// Protected campaign analytics dashboard
-router.get("/", protect, getCampaignAnalytics);
+router.get(
+  "/",
+  protect,
+  getCampaignAnalytics,
+);
 
 module.exports = router;

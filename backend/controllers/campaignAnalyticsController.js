@@ -5,216 +5,204 @@ const Campaign = require("../models/Campaign");
 // CAMPAIGN ANALYTICS
 // =====================================================
 
-// @desc    Get campaign analytics
-// @route   GET /api/campaign-analytics
-// @access  Protected
+// @desc Get donation analytics for campaigns
+// @route GET /api/campaign-analytics
+// @access Protected
 const getCampaignAnalytics = async (req, res) => {
   try {
     // --------------------------------------------------
-    // Get all campaigns
+    // Only successful donations count as actual funds.
+    // Pending / Failed payments are excluded.
     // --------------------------------------------------
 
-    const campaigns = await Campaign.find()
-      .select(
-        "title description targetAmount raisedAmount disasterType location status startDate endDate",
-      )
-      .sort({ createdAt: -1 });
-
-    // --------------------------------------------------
-    // Get all successful donations
-    // --------------------------------------------------
-
-    const paidDonations = await Donation.find({
+    const paidFilter = {
       paymentStatus: "Paid",
-    })
-      .populate(
-        "campaign",
-        "title targetAmount raisedAmount disasterType location",
-      )
-      .populate("donor", "name email")
-      .sort({ createdAt: -1 });
+    };
 
     // --------------------------------------------------
-    // Basic totals
+    // Total paid donation amount
     // --------------------------------------------------
 
-    const totalCampaigns = campaigns.length;
+    const totalRaisedResult = await Donation.aggregate([
+      {
+        $match: paidFilter,
+      },
+      {
+        $group: {
+          _id: null,
+          totalRaised: {
+            $sum: "$amount",
+          },
+        },
+      },
+    ]);
 
-    const totalDonations = paidDonations.length;
-
-    const totalRaised = paidDonations.reduce(
-      (total, donation) => total + Number(donation.amount || 0),
-      0,
-    );
-
-    // --------------------------------------------------
-    // Unique donors
-    // --------------------------------------------------
-
-    const uniqueDonorIds = new Set();
-
-    paidDonations.forEach((donation) => {
-      if (donation.donor?._id) {
-        uniqueDonorIds.add(donation.donor._id.toString());
-      }
-    });
-
-    const uniqueDonors = uniqueDonorIds.size;
+    const totalRaised = totalRaisedResult[0]?.totalRaised || 0;
 
     // --------------------------------------------------
-    // Average donation
+    // Total number of successful donations
+    // --------------------------------------------------
+
+    const totalDonations = await Donation.countDocuments(paidFilter);
+
+    // --------------------------------------------------
+    // Average successful donation
     // --------------------------------------------------
 
     const averageDonation =
       totalDonations > 0 ? totalRaised / totalDonations : 0;
 
     // --------------------------------------------------
-    // Campaign-wise analytics
+    // Campaign-wise donation analytics
     // --------------------------------------------------
 
-    const campaignAnalytics = campaigns.map((campaign) => {
-      const campaignDonations = paidDonations.filter(
-        (donation) =>
-          donation.campaign?._id?.toString() === campaign._id.toString(),
-      );
+    const campaignAnalytics = await Donation.aggregate([
+      {
+        $match: paidFilter,
+      },
 
-      const donationCount = campaignDonations.length;
+      {
+        $group: {
+          _id: "$campaign",
 
-      const donationAmount = campaignDonations.reduce(
-        (total, donation) => total + Number(donation.amount || 0),
-        0,
-      );
+          totalRaised: {
+            $sum: "$amount",
+          },
 
-      const targetAmount = Number(campaign.targetAmount || 0);
+          donationCount: {
+            $sum: 1,
+          },
 
-      const fundingPercentage =
-        targetAmount > 0 ? (donationAmount / targetAmount) * 100 : 0;
+          averageDonation: {
+            $avg: "$amount",
+          },
+        },
+      },
 
-      const remainingAmount = Math.max(targetAmount - donationAmount, 0);
+      {
+        $lookup: {
+          from: "campaigns",
+          localField: "_id",
+          foreignField: "_id",
+          as: "campaign",
+        },
+      },
 
-      const averageDonation =
-        donationCount > 0 ? donationAmount / donationCount : 0;
+      {
+        $unwind: {
+          path: "$campaign",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
 
-      return {
-        campaignId: campaign._id,
-        title: campaign.title,
-        description: campaign.description,
-        disasterType: campaign.disasterType,
-        location: campaign.location,
-        status: campaign.status,
+      {
+        $project: {
+          _id: 0,
 
-        targetAmount,
+          campaignId: "$_id",
 
-        // Use actual successful donations for analytics.
-        raisedAmount: donationAmount,
+          title: {
+            $ifNull: ["$campaign.title", "Campaign unavailable"],
+          },
 
-        donationCount,
+          disasterType: {
+            $ifNull: ["$campaign.disasterType", ""],
+          },
 
-        averageDonation,
+          location: {
+            $ifNull: ["$campaign.location", ""],
+          },
 
-        remainingAmount,
+          targetAmount: {
+            $ifNull: ["$campaign.targetAmount", 0],
+          },
 
-        fundingPercentage: Math.min(fundingPercentage, 100),
-      };
-    });
+          totalRaised: 1,
 
-    // --------------------------------------------------
-    // Sort campaigns by amount raised
-    // --------------------------------------------------
+          donationCount: 1,
 
-    const campaignsByPerformance = [...campaignAnalytics].sort(
-      (a, b) => b.raisedAmount - a.raisedAmount,
-    );
+          averageDonation: {
+            $round: ["$averageDonation", 2],
+          },
+        },
+      },
 
-    // --------------------------------------------------
-    // Top campaign
-    // --------------------------------------------------
-
-    const topCampaign =
-      campaignsByPerformance.length > 0 ? campaignsByPerformance[0] : null;
-
-    // --------------------------------------------------
-    // Donation activity by date
-    // --------------------------------------------------
-
-    const dailyDonationMap = {};
-
-    paidDonations.forEach((donation) => {
-      const date = new Date(donation.createdAt).toISOString().split("T")[0];
-
-      if (!dailyDonationMap[date]) {
-        dailyDonationMap[date] = {
-          date,
-          donationCount: 0,
-          amount: 0,
-        };
-      }
-
-      dailyDonationMap[date].donationCount += 1;
-
-      dailyDonationMap[date].amount += Number(donation.amount || 0);
-    });
-
-    const donationTrend = Object.values(dailyDonationMap)
-      .sort((a, b) => new Date(a.date) - new Date(b.date))
-      .slice(-30);
+      {
+        $sort: {
+          totalRaised: -1,
+        },
+      },
+    ]);
 
     // --------------------------------------------------
-    // Disaster type breakdown
+    // Add percentage of total funds
     // --------------------------------------------------
 
-    const disasterTypeMap = {};
+    const campaignBreakdown = campaignAnalytics.map((campaign) => ({
+      ...campaign,
 
-    campaignAnalytics.forEach((campaign) => {
-      const type = campaign.disasterType || "Other";
+      percentageOfTotal:
+        totalRaised > 0
+          ? Number(((campaign.totalRaised / totalRaised) * 100).toFixed(2))
+          : 0,
 
-      if (!disasterTypeMap[type]) {
-        disasterTypeMap[type] = {
-          disasterType: type,
-          campaignCount: 0,
-          raisedAmount: 0,
-          donationCount: 0,
-        };
-      }
-
-      disasterTypeMap[type].campaignCount += 1;
-
-      disasterTypeMap[type].raisedAmount += campaign.raisedAmount;
-
-      disasterTypeMap[type].donationCount += campaign.donationCount;
-    });
-
-    const disasterTypeBreakdown = Object.values(disasterTypeMap);
-
-    // --------------------------------------------------
-    // Recent donations
-    // --------------------------------------------------
-
-    const recentDonations = paidDonations.slice(0, 10).map((donation) => ({
-      donationId: donation._id,
-
-      amount: donation.amount,
-
-      transactionId: donation.transactionId,
-
-      paymentMethod: donation.paymentMethod,
-
-      createdAt: donation.createdAt,
-
-      donor: donation.donor
-        ? {
-            name: donation.donor.name,
-            email: donation.donor.email,
-          }
-        : null,
-
-      campaign: donation.campaign
-        ? {
-            id: donation.campaign._id,
-            title: donation.campaign.title,
-          }
-        : null,
+      targetProgress:
+        campaign.targetAmount > 0
+          ? Number(
+              ((campaign.totalRaised / campaign.targetAmount) * 100).toFixed(2),
+            )
+          : 0,
     }));
+
+    // --------------------------------------------------
+    // Payment status summary
+    // --------------------------------------------------
+
+    const paymentStatusSummary = await Donation.aggregate([
+      {
+        $group: {
+          _id: "$paymentStatus",
+
+          count: {
+            $sum: 1,
+          },
+
+          amount: {
+            $sum: "$amount",
+          },
+        },
+      },
+
+      {
+        $project: {
+          _id: 0,
+          status: "$_id",
+          count: 1,
+          amount: 1,
+        },
+      },
+
+      {
+        $sort: {
+          status: 1,
+        },
+      },
+    ]);
+
+    // --------------------------------------------------
+    // Recent successful donations
+    // --------------------------------------------------
+
+    const recentDonations = await Donation.find({
+      paymentStatus: "Paid",
+    })
+      .populate("campaign", "title disasterType location")
+      .populate("donor", "name email")
+      .sort({
+        createdAt: -1,
+      })
+      .limit(10)
+      .lean();
 
     // --------------------------------------------------
     // Response
@@ -222,20 +210,18 @@ const getCampaignAnalytics = async (req, res) => {
 
     res.status(200).json({
       summary: {
-        totalCampaigns,
-        totalDonations,
         totalRaised,
-        uniqueDonors,
-        averageDonation,
+
+        totalDonations,
+
+        averageDonation: Number(averageDonation.toFixed(2)),
+
+        campaignCount: campaignAnalytics.length,
       },
 
-      topCampaign,
+      campaignBreakdown,
 
-      campaignAnalytics: campaignsByPerformance,
-
-      donationTrend,
-
-      disasterTypeBreakdown,
+      paymentStatusSummary,
 
       recentDonations,
     });
@@ -243,8 +229,7 @@ const getCampaignAnalytics = async (req, res) => {
     console.error("Campaign analytics error:", error);
 
     res.status(500).json({
-      message: "Failed to generate campaign analytics.",
-      error: error.message,
+      message: "Failed to load campaign analytics.",
     });
   }
 };

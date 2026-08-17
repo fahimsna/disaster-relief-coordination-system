@@ -15,6 +15,8 @@ import MyDonations from "./pages/MyDonations";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCancel from "./pages/PaymentCancel";
 
+import CampaignAnalytics from "./pages/CampaignAnalytics";
+
 import AdminCampaigns from "./pages/admin/AdminCampaigns";
 import CreateCampaign from "./pages/admin/CreateCampaign";
 import EditCampaign from "./pages/admin/EditCampaign";
@@ -39,7 +41,9 @@ export default function App() {
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<Login />} />
+
           <Route path="/signup" element={<Signup />} />
+
           <Route path="/register" element={<VolunteerRegistration />} />
 
           <Route path="/" element={<Signup />} />
@@ -49,6 +53,7 @@ export default function App() {
 
           {/* Map Pages */}
           <Route path="/map" element={<PublicMapPage />} />
+
           <Route
             path="/admin/map"
             element={
@@ -60,9 +65,13 @@ export default function App() {
 
           {/* Donor */}
           <Route path="/campaigns" element={<CampaignList />} />
+
           <Route path="/campaigns/:id" element={<CampaignDetails />} />
+
           <Route path="/donations" element={<MyDonations />} />
+
           <Route path="/payment-success" element={<PaymentSuccess />} />
+
           <Route path="/payment-cancel" element={<PaymentCancel />} />
 
           {/* User Dashboard */}
@@ -85,12 +94,26 @@ export default function App() {
             }
           />
 
+          {/* =================================================
+              ADMIN ROUTES
+          ================================================= */}
+
           {/* Admin Dashboard */}
           <Route
             path="/admin/dashboard"
             element={
               <ProtectedRoute role="admin">
                 <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Campaign Analytics */}
+          <Route
+            path="/admin/campaign-analytics"
+            element={
+              <ProtectedRoute role="admin">
+                <CampaignAnalytics />
               </ProtectedRoute>
             }
           />
