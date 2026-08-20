@@ -1,7 +1,10 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React from "react";
+import { Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function Navbar({ setSidebarOpen }) {
+  const { user } = useAuth();
+
   return (
     <header className="bg-brand-navy px-6 py-3">
       <div className="mx-auto flex max-w-5xl items-center justify-between">
@@ -41,9 +44,15 @@ export default function Navbar({ setSidebarOpen }) {
           text-sm
           text-white/90
           md:flex
+          md:ml-auto
           "
         >
-          <span className="cursor-pointer hover:text-white">Home</span>
+          <Link
+            to={user?.role === "admin" ? "/admin/dashboard" : "/dashboard"}
+            className="cursor-pointer hover:text-white"
+          >
+            Home
+          </Link>
 
           <span className="cursor-pointer hover:text-white">My Missions</span>
 
@@ -55,10 +64,13 @@ export default function Navbar({ setSidebarOpen }) {
             Report Disaster
           </Link>
 
-          <span className="cursor-pointer hover:text-white">Profile</span>
+          {user?.role === "volunteer" && (
+            <Link to="/profile" className="cursor-pointer hover:text-white">
+              Profile
+            </Link>
+          )}
 
           {/* Avatar */}
-
           <span
             className="
             h-7
@@ -71,15 +83,13 @@ export default function Navbar({ setSidebarOpen }) {
 
         {/* Mobile Avatar */}
 
-        <span
-          className="
-          h-7
-          w-7
-          rounded-full
-          bg-white/80
-          md:hidden
-          "
-        />
+        {user?.role === "volunteer" ? (
+          <Link to="/profile">
+            <span className="h-7 w-7 rounded-full bg-white/80 md:hidden" />
+          </Link>
+        ) : (
+          <span className="h-7 w-7 rounded-full bg-white/80 md:hidden" />
+        )}
       </div>
     </header>
   );

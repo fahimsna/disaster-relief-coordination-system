@@ -18,6 +18,10 @@ export default function AdminSidebar({ open, setOpen }) {
       path: "/admin/report-verification",
     },
     {
+      name: "Weather",
+      path: "/admin/weather",
+    },
+    {
       name: "Severity Threshold",
       path: "/admin/severity-threshold",
     },
