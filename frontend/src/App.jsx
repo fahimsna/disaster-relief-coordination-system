@@ -15,6 +15,9 @@ import MyDonations from "./pages/MyDonations";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCancel from "./pages/PaymentCancel";
 
+import EmailLogs from "./pages/admin/EmailLogs";
+import CertificatePreview from "./pages/admin/CertificatePreview";
+
 import CampaignAnalytics from "./pages/CampaignAnalytics";
 
 import AdminCampaigns from "./pages/admin/AdminCampaigns";
@@ -233,6 +236,26 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+
+          {/* Email Logs */}
+          <Route
+            path="/admin/email-logs"
+            element={
+              <ProtectedRoute role="admin">
+                <EmailLogs />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Certificate Preview */}
+          <Route
+            path="/admin/certificates"
+            element={
+              <ProtectedRoute role="admin">
+                <CertificatePreview />
+              </ProtectedRoute>
+            }
+          />   
         </Routes>
       </AuthProvider>
     </BrowserRouter>
