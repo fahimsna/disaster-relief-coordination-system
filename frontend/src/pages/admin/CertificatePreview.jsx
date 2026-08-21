@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { useAuth } from "../../context/AuthContext";
-import AdminLayout from "../../components/AdminLayout";
+import Navbar from "../../components/Navbar";
+import AdminSidebar from "../../components/AdminSidebar";
 
 const CertificatePreview = () => {
   const { token, user } = useAuth();
@@ -28,7 +29,7 @@ const CertificatePreview = () => {
         `${API_URL}/notifications/certificate/volunteer/${id}`,
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
       setCertificates(response.data.data || []);
     } catch (error) {
@@ -44,7 +45,7 @@ const CertificatePreview = () => {
         {
           headers: { Authorization: `Bearer ${token}` },
           responseType: "blob",
-        }
+        },
       );
 
       const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -134,7 +135,9 @@ const CertificatePreview = () => {
             <div className="p-8 text-center text-gray-500">
               <p className="text-4xl mb-2">📄</p>
               <p>No certificates available.</p>
-              <p className="text-sm">Complete a mission to earn a certificate.</p>
+              <p className="text-sm">
+                Complete a mission to earn a certificate.
+              </p>
             </div>
           ) : (
             <div className="overflow-x-auto">
