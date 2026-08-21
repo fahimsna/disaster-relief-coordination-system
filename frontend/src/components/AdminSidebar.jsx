@@ -53,6 +53,14 @@ export default function AdminSidebar({ open, setOpen }) {
       name: "SMS Broadcast",
       path: "/admin/sms-broadcast",
     },
+    {
+      name: "Email Logs",
+      path: "/admin/email-logs",
+    },
+    {
+      name: "Certificate Preview",
+      path: "/admin/certificates",
+    }
   ];
 
   return (
