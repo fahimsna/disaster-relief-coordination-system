@@ -115,7 +115,7 @@ export default function MyDonations() {
           <DashboardSidebar open={sidebarOpen} setOpen={setSidebarOpen} />
 
           <main className="flex-1 p-6">
-            <div className="flex min-h-[400px] items-center justify-center">
+            <div className="flex min-h-100 items-center justify-center">
               <div className="text-center">
                 <div
                   className="
