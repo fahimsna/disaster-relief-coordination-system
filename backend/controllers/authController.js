@@ -15,6 +15,14 @@ const registerUser = async (req, res) => {
       });
     }
 
+    // Admin accounts cannot be created through public registration.
+    // Admin accounts must be created separately by the system/database.
+    if (role === "admin") {
+      return res.status(403).json({
+        message: "Admin registration is not allowed.",
+      });
+    }
+
     // Check existing user
     const existingUser = await User.findOne({ email });
 
@@ -48,10 +56,10 @@ const registerUser = async (req, res) => {
     });
   }
 };
+
 // @desc Login user
 // @route POST /api/auth/login
 // @access Public
-
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -98,10 +106,10 @@ const loginUser = async (req, res) => {
     });
   }
 };
+
 // @desc Logout user
 // @route POST /api/auth/logout
 // @access Public
-
 const logoutUser = async (req, res) => {
   res.status(200).json({
     message: "Logout successful.",
