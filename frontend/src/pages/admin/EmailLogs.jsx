@@ -9,7 +9,9 @@ const EmailLogs = () => {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+  const API_URL =
+    import.meta.env.VITE_API_URL ||
+    "http://disaster-relief-coordination-system-five.vercel.app/api";
 
   useEffect(() => {
     fetchLogs();
@@ -49,7 +51,7 @@ const EmailLogs = () => {
         },
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
 
       toast.success("Email retry sent successfully!");
@@ -94,7 +96,9 @@ const EmailLogs = () => {
             <div className="p-8 text-center text-gray-500">
               <p className="text-4xl mb-2">📭</p>
               <p>No email logs found.</p>
-              <p className="text-sm">Email logs will appear here after donations are made.</p>
+              <p className="text-sm">
+                Email logs will appear here after donations are made.
+              </p>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -126,7 +130,7 @@ const EmailLogs = () => {
                         <td className="px-6 py-4">
                           <span
                             className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadge(
-                              emailEntry?.status
+                              emailEntry?.status,
                             )}`}
                           >
                             {emailEntry?.status || "pending"}
@@ -147,7 +151,9 @@ const EmailLogs = () => {
                             </button>
                           )}
                           {emailEntry?.status === "sent" && (
-                            <span className="text-green-600 text-sm">✓ Sent</span>
+                            <span className="text-green-600 text-sm">
+                              ✓ Sent
+                            </span>
                           )}
                         </td>
                       </tr>

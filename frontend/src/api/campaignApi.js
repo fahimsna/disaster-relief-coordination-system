@@ -2,7 +2,7 @@ import axios from "axios";
 
 const API_URL =
   import.meta.env.VITE_CAMPAIGN_API_URL ||
-  "http://localhost:8000/api/campaigns";
+  "http://disaster-relief-coordination-system-five.vercel.app/api/campaigns";
 
 const api = axios.create({
   baseURL: API_URL,

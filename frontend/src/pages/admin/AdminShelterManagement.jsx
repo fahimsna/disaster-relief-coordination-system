@@ -13,7 +13,8 @@ import { useShelterOperations } from "../../hooks/useShelterOperations";
 import { fetchCoordinatesOnSubmit } from "../../utils/osmgeocode";
 
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+  import.meta.env.VITE_API_BASE_URL ||
+  "http://disaster-relief-coordination-system-five.vercel.app";
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem("token");

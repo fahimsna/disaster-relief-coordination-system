@@ -3,7 +3,9 @@ import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import AdminSidebar from "../components/AdminSidebar";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  "http://disaster-relief-coordination-system-five.vercel.app";
 
 export default function CampaignAnalytics() {
   const [sidebarOpen, setSidebarOpen] = useState(false);

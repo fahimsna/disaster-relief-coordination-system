@@ -2,7 +2,7 @@ import axios from "axios";
 
 // central axios instance to stop repeating baseURL/headers everywhere
 const api = axios.create({
-  baseURL: "http://localhost:8000/api",
+  baseURL: "http://disaster-relief-coordination-system-five.vercel.app/api",
 });
 
 // grabs the token off localStorage on every request instead of threading it

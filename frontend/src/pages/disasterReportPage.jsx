@@ -85,7 +85,10 @@ export default function DisasterReportPage() {
       };
 
       // Send to your backend endpoint
-      await axios.post("http://localhost:8000/api/reports", payload);
+      await axios.post(
+        "http://disaster-relief-coordination-system-five.vercel.app/api/reports",
+        payload,
+      );
 
       setFeedback({
         type: "success",
