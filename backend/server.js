@@ -13,7 +13,17 @@ const smsRoutes = require("./routes/smsRoutes");
 
 const app = express();
 
-app.use(cors());
+const cors = require("cors");
+
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "https://disaster-relief-coordination-system-five.vercel.app",
+    ],
+    credentials: true,
+  }),
+);
 
 // =====================================================
 // STRIPE WEBHOOK
