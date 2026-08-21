@@ -209,6 +209,7 @@ exports.unassignVolunteer = async (req, res) => {
     volunteer.status = "available";
     volunteer.assignedIncident = null;
     volunteer.assignmentStage = "none";
+    volunteer.deliveryStage = null; // clear any in-progress stage tracker state too
     await volunteer.save();
 
     res.json({

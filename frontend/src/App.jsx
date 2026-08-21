@@ -25,6 +25,7 @@ import CreateCampaign from "./pages/admin/CreateCampaign";
 import EditCampaign from "./pages/admin/EditCampaign";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import VolunteerProfile from "./pages/VolunteerProfile";
+import MissionStageTracker from "./pages/MissionStageTracker";
 import SMSBroadcast from "./pages/admin/SMSBroadcast";
 import AlertConfiguration from "./pages/admin/AlertConfiguration";
 import WeatherTracker from "./pages/admin/WeatherTracker";
@@ -39,6 +40,8 @@ import HomePage from "./pages/HomePage.jsx";
 import IncidentCommandMapPage from "./pages/admin/IncidentCommandMapPage";
 
 import TaskAssignmentBoard from "./pages/admin/TaskAssignmentBoard";
+
+import StageFeed from "./pages/admin/StageFeed";
 
 // Shelter & Crisis Analytics Pages
 import ShelterDirectoryPage from "./pages/ShelterDirectoryPage";
@@ -104,6 +107,16 @@ export default function App() {
             }
           />
 
+          {/* Relief Distribution Stage Tracker -- volunteer's own active mission */}
+          <Route
+            path="/mission-tracker"
+            element={
+              <ProtectedRoute>
+                <MissionStageTracker />
+              </ProtectedRoute>
+            }
+          />
+
           {/* =================================================
               ADMIN ROUTES
           ================================================= */}
@@ -154,6 +167,16 @@ export default function App() {
             element={
               <ProtectedRoute role="admin">
                 <TaskAssignmentBoard />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Relief Distribution Stage Feed -- admin consolidated view */}
+          <Route
+            path="/admin/stage-feed"
+            element={
+              <ProtectedRoute role="admin">
+                <StageFeed />
               </ProtectedRoute>
             }
           />
