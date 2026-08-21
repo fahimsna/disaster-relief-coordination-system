@@ -46,9 +46,9 @@ app.use("/api/thresholds", require("./routes/thresholdroutes"));
 
 app.use("/api/locations", require("./routes/locationRoutes"));
 
-app.use('/api/shelters', require('./routes/shelterRoutes'));
+app.use("/api/shelters", require("./routes/shelterRoutes"));
 
-app.use('/api/analytics', require('./routes/analyticsRoutes'));
+app.use("/api/analytics", require("./routes/analyticsRoutes"));
 
 app.use("/api/weather", require("./routes/weatherRoutes"));
 
@@ -63,6 +63,8 @@ app.use("/api/fund-allocations", fundAllocationRoutes);
 app.use("/api/notifications", require("./routes/notificationRoutes"));
 
 app.use("/api/sms", smsRoutes);
+
+app.use("/api/stage-updates", require("./routes/stageRoutes"));
 
 // =====================================================
 // MODULE 3

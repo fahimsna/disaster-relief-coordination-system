@@ -29,6 +29,7 @@ export default function VolunteerProfile() {
   const [form, setForm] = useState(null); // draft copy while editing
   const [isSaving, setIsSaving] = useState(false);
   const [isToggling, setIsToggling] = useState(false);
+  const [missionHistory, setMissionHistory] = useState([]);
 
   // pull "my" profile on mount -- backend figures out who "my" is from the JWT
   useEffect(() => {
@@ -46,6 +47,17 @@ export default function VolunteerProfile() {
         setError(err.response?.data?.error || "Couldn't load your profile.");
       } finally {
         setLoading(false);
+      }
+    })();
+
+    // Fetch mission history
+    (async () => {
+      try {
+        const { data } = await api.get("/stage-updates/history");
+        setMissionHistory(data.data || []);
+      } catch (err) {
+        console.error("Failed to load mission history:", err);
+        // Don't show error – it's okay if history is empty
       }
     })();
   }, [navigate]);
@@ -135,6 +147,20 @@ export default function VolunteerProfile() {
   return (
     <div className="min-h-screen bg-brand-bg">
       <Navbar />
+
+      {volunteer.assignmentStage === "deployed" && (
+        <div className="mx-auto mt-6 max-w-4xl px-4">
+          <button
+            onClick={() => navigate("/mission-tracker")}
+            className="flex w-full items-center justify-between rounded-xl bg-brand-accent px-5 py-3 text-left text-white shadow-sm"
+          >
+            <span className="text-sm font-semibold">
+              You have an active deployed mission -- log your stage progress
+            </span>
+            <span>→</span>
+          </button>
+        </div>
+      )}
 
       <div className="mx-auto mt-10 grid max-w-4xl grid-cols-1 gap-6 px-4 md:grid-cols-[280px_1fr]">
         {/* LEFT: avatar + quick facts + availability switch, matches the Figma profile card */}
@@ -276,24 +302,39 @@ export default function VolunteerProfile() {
             </div>
           </form>
         ) : (
-          <div className="rounded-xl bg-white p-6 shadow-sm">
-            <h3 className="text-sm font-bold text-gray-800">Mission History</h3>
-            <ul className="mt-4 divide-y divide-gray-100">
-              {mockMissions.map((m) => (
-                <li
-                  key={m.id}
-                  className="flex items-center justify-between py-3 text-sm"
-                >
-                  <span className="text-gray-700">{m.title}</span>
-                  <span
-                    className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusStyles[m.status]}`}
-                  >
-                    {m.status}
-                  </span>
-                  <span className="text-xs text-gray-400">{m.date}</span>
-                </li>
-              ))}
-            </ul>
+          <div className="space-y-6">
+            <div className="rounded-xl bg-white p-6 shadow-sm">
+              <h3 className="text-sm font-bold text-gray-800">
+                Mission History
+              </h3>
+              {missionHistory.length === 0 ? (
+                <p className="mt-4 text-sm text-gray-500">
+                  No completed missions yet.
+                </p>
+              ) : (
+                <ul className="mt-4 divide-y divide-gray-100">
+                  {missionHistory.map((mission) => (
+                    <li
+                      key={mission.id}
+                      className="flex items-center justify-between py-3 text-sm"
+                    >
+                      <span className="text-gray-700">
+                        {mission.incident?.crisisType || "Mission"} ·{" "}
+                        {mission.incident?.district || "Unknown"}
+                      </span>
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusStyles["Completed"]}`}
+                      >
+                        Completed
+                      </span>
+                      <span className="text-xs text-gray-400">
+                        {new Date(mission.endDate).toLocaleDateString()}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
         )}
       </div>
