@@ -226,3 +226,71 @@ exports.resolveReport = async (req, res) => {
       .json({ message: "Failed to resolve report", error: error.message });
   }
 };
+
+
+// GET /api/reports/map-clusters
+exports.getMapClusters = async (req, res) => {
+  try {
+    const config = (await Threshold.findOne()) || { windowHours: 1 };
+    const windowStart = new Date(Date.now() - config.windowHours * 60 * 60 * 1000);
+
+    const clusters = await DisasterReport.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: windowStart },
+          status: "Verified",
+        },
+      },
+      {
+        $group: {
+          _id: {
+            district: "$district",
+            subdistrict: "$subdistrict",
+            crisisType: "$crisisType",
+          },
+          reportCount: { $sum: 1 },
+          reportIds: { $push: "$_id" },
+          severity: { $first: "$severity" },
+          latestReportTime: { $max: "$createdAt" },
+          latitude: { $first: "$latitude" },
+          longitude: { $first: "$longitude" },
+          reports: {
+            $push: {
+              _id: "$_id",
+              description: "$description",
+              manualAddress: "$manualAddress",
+              createdAt: "$createdAt",
+            },
+          },
+        },
+      },
+    ]);
+
+    res.status(200).json({ success: true, count: clusters.length, data: clusters });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+// PUT /api/reports/batch-resolve
+exports.batchResolve = async (req, res) => {
+  try {
+    const { reportIds } = req.body;
+
+    if (!reportIds || !Array.isArray(reportIds) || reportIds.length === 0) {
+      return res.status(400).json({ message: "No report IDs provided." });
+    }
+
+    const result = await DisasterReport.updateMany(
+      { _id: { $in: reportIds } },
+      { $set: { status: "Resolved", resolvedAt: new Date() } }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: `Successfully resolved ${result.modifiedCount} reports.`,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
