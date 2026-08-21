@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/AuthContext.jsx";
 
 export default function AdminSidebar({ open, setOpen }) {
   const { logout } = useAuth();
@@ -8,6 +8,10 @@ export default function AdminSidebar({ open, setOpen }) {
     {
       name: "Dashboard",
       path: "/admin/dashboard",
+    },
+    {
+      name: "Crisis Analytics",
+      path: "/admin/analytics",
     },
     {
       name: "Incident Command Map",
@@ -28,6 +32,10 @@ export default function AdminSidebar({ open, setOpen }) {
     {
       name: "Severity Threshold",
       path: "/admin/severity-threshold",
+    },
+    {
+      name: "Shelter Directory",
+      path: "/admin/shelters",
     },
     {
       name: "Manage Campaigns",

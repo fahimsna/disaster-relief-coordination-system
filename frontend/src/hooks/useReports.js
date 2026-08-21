@@ -4,6 +4,25 @@ import { getReportStatus, formatDistrictField } from '../utils/formatters';
 
 const API_BASE = 'http://localhost:8000/api/reports';
 
+// Helper to retrieve token from localStorage (handles direct strings or nested user objects)
+const getAuthConfig = () => {
+  let token = localStorage.getItem('token') || localStorage.getItem('jwt');
+  if (!token) {
+    try {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      token = user.token || user.jwt || user.accessToken;
+    } catch (e) {
+      /* ignore JSON parse error */
+    }
+  }
+
+  return {
+    headers: {
+      Authorization: token ? `Bearer ${token}` : '',
+    },
+  };
+};
+
 export const useReports = () => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -20,7 +39,7 @@ export const useReports = () => {
   const fetchReports = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(API_BASE);
+      const res = await axios.get(API_BASE, getAuthConfig());
       const rawData = res.data?.data || res.data;
       setReports(Array.isArray(rawData) ? rawData : []);
     } catch (err) {
@@ -41,11 +60,15 @@ export const useReports = () => {
   const verifyReport = async (id) => {
     setActionLoading(true);
     try {
-      await axios.put(`${API_BASE}/${id}/verify`);
+      // Note: Passing {} as 2nd arg (payload) and getAuthConfig() as 3rd arg (config/headers)
+      await axios.put(`${API_BASE}/${id}/verify`, {}, getAuthConfig());
       updateReportLocal(id, { status: 'Verified' });
       setFeedback({ type: 'success', message: 'Report verified successfully!' });
     } catch (err) {
-      setFeedback({ type: 'error', message: 'Failed to verify report.' });
+      setFeedback({ 
+        type: 'error', 
+        message: err.response?.data?.message || 'Failed to verify report. Insufficient permissions or session expired.' 
+      });
     } finally {
       setActionLoading(false);
     }
@@ -54,11 +77,14 @@ export const useReports = () => {
   const rejectReport = async (id) => {
     setActionLoading(true);
     try {
-      await axios.put(`${API_BASE}/${id}/reject`);
+      await axios.put(`${API_BASE}/${id}/reject`, {}, getAuthConfig());
       updateReportLocal(id, { status: 'Rejected' });
       setFeedback({ type: 'success', message: 'Report rejected.' });
     } catch (err) {
-      setFeedback({ type: 'error', message: 'Failed to reject report.' });
+      setFeedback({ 
+        type: 'error', 
+        message: err.response?.data?.message || 'Failed to reject report.' 
+      });
     } finally {
       setActionLoading(false);
     }
@@ -66,11 +92,11 @@ export const useReports = () => {
 
   const setSeverity = async (id, severity) => {
     try {
-      await axios.put(`${API_BASE}/${id}/severity`, { severity });
+      await axios.put(`${API_BASE}/${id}/severity`, { severity }, getAuthConfig());
       updateReportLocal(id, { severity });
       setFeedback({ type: 'success', message: `Severity updated to ${severity}` });
     } catch (err) {
-      updateReportLocal(id, { severity });
+      setFeedback({ type: 'error', message: err.response?.data?.message || 'Failed to update severity.' });
     }
   };
 
@@ -86,7 +112,6 @@ export const useReports = () => {
   const filteredAndSortedReports = useMemo(() => {
     let result = [...reports];
 
-    // Search filter matching raw ID, status, location, severity, crisis, and descriptions
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       result = result.filter((r) =>
@@ -104,7 +129,6 @@ export const useReports = () => {
       );
     }
 
-    // Type-safe sorting logic
     result.sort((a, b) => {
       const aStatus = getReportStatus(a);
       const bStatus = getReportStatus(b);

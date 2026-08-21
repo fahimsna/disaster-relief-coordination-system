@@ -1,8 +1,13 @@
-// src/components/LocationSelector.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const LocationSelector = ({ division = '', district = '', upazila = '', onLocationChange }) => {
+const LocationSelector = ({
+  division = '',
+  district = '',
+  upazila = '',
+  onLocationChange,
+  showUpazila = true,
+}) => {
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -64,7 +69,11 @@ const LocationSelector = ({ division = '', district = '', upazila = '', onLocati
   if (error) return <p className="text-sm text-red-500 py-2">Error loading locations: {error}</p>;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+    <div
+      className={`grid grid-cols-1 ${
+        showUpazila ? 'sm:grid-cols-3' : 'sm:grid-cols-2'
+      } gap-3 mb-3`}
+    >
       <div>
         <label className="block text-xs font-bold text-gray-600 mb-1">Division</label>
         <select
@@ -98,22 +107,26 @@ const LocationSelector = ({ division = '', district = '', upazila = '', onLocati
         </select>
       </div>
 
-      <div>
-        <label className="block text-xs font-bold text-gray-600 mb-1">Sub-district / Upazila *</label>
-        <select
-          value={upazila}
-          onChange={handleUpazilaChange}
-          disabled={!district}
-          className="w-full p-2.5 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:border-[#00b4d8] disabled:bg-gray-50"
-        >
-          <option value="">-- Select Upazila --</option>
-          {availableUpazilas.map((sub, idx) => (
-            <option key={`${sub}-${idx}`} value={sub}>
-              {sub}
-            </option>
-          ))}
-        </select>
-      </div>
+      {showUpazila && (
+        <div>
+          <label className="block text-xs font-bold text-gray-600 mb-1">
+            Sub-district / Upazila *
+          </label>
+          <select
+            value={upazila}
+            onChange={handleUpazilaChange}
+            disabled={!district}
+            className="w-full p-2.5 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:border-[#00b4d8] disabled:bg-gray-50"
+          >
+            <option value="">-- Select Upazila --</option>
+            {availableUpazilas.map((sub, idx) => (
+              <option key={`${sub}-${idx}`} value={sub}>
+                {sub}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
     </div>
   );
 };

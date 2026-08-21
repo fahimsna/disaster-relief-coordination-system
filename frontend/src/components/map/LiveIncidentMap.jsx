@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import { SEVERITY_ICONS } from './MapIcons.js';
+import { SEVERITY_ICONS, SHELTER_ICON } from './MapIcons.js';
 import MapBoundsAdjuster from './MapBoundsAdjuster.jsx';
 import IncidentPopup from './IncidentPopup.jsx';
 import MapFilterOverlay from './MapFilterOverlay.jsx';
@@ -18,6 +19,24 @@ function LiveIncidentMap({ isCoordinator = true }) {
     setCrisisFilter,
   } = useIncidents();
 
+  // State to hold active shelters and filter toggle
+  const [shelters, setShelters] = useState([]);
+  const [showShelters, setShowShelters] = useState(true);
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+
+  useEffect(() => {
+    const fetchShelters = async () => {
+      try {
+        const res = await axios.get(`${API_BASE_URL}/api/shelters`);
+        setShelters(res.data.data || []);
+      } catch (err) {
+        console.error('Failed to load shelters on map:', err);
+      }
+    };
+    fetchShelters();
+  }, []);
+
   const defaultCenter = [23.6850, 90.3563];
 
   return (
@@ -28,12 +47,13 @@ function LiveIncidentMap({ isCoordinator = true }) {
         </div>
       )}
 
-      {/* Floating Filter Sidebar Overlay */}
       <MapFilterOverlay
         severityFilter={severityFilter}
         setSeverityFilter={setSeverityFilter}
         crisisFilter={crisisFilter}
         setCrisisFilter={setCrisisFilter}
+        showShelters={showShelters}
+        setShowShelters={setShowShelters}
         recentIncidents={rawIncidents}
       />
 
@@ -45,22 +65,17 @@ function LiveIncidentMap({ isCoordinator = true }) {
 
         {incidents.length > 0 && <MapBoundsAdjuster markers={incidents} />}
 
+        {/* ================= INCIDENT MARKERS ================= */}
         {incidents
-          // 1. Filter out items with missing or invalid coordinates
           .filter((incident) => {
             const lat = Number(incident.latitude);
             const lng = Number(incident.longitude);
             return !isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0;
           })
-          // 2. Safely render markers
           .map((incident, index) => {
             let lat = Number(incident.latitude);
             let lng = Number(incident.longitude);
-
-            // Swap coordinates if latitude and longitude were accidentally inverted (e.g., GeoJSON format)
-            if (lat > 85 || lat < -85) {
-              [lat, lng] = [lng, lat];
-            }
+            if (lat > 85 || lat < -85) [lat, lng] = [lng, lat];
 
             return (
               <Marker
@@ -78,6 +93,28 @@ function LiveIncidentMap({ isCoordinator = true }) {
               </Marker>
             );
           })}
+
+        {/* ================= SHELTER MARKERS ================= */}
+        {showShelters &&
+          shelters
+            .filter((s) => s.latitude && s.longitude)
+            .map((shelter) => (
+              <Marker
+                key={shelter._id}
+                position={[Number(shelter.latitude), Number(shelter.longitude)]}
+                icon={SHELTER_ICON || SEVERITY_ICONS.Low}
+              >
+                <Popup>
+                  <div className="p-2 space-y-1">
+                    <h3 className="font-bold text-sm text-slate-800">🏠 {shelter.name}</h3>
+                    <p className="text-xs text-slate-600">{shelter.address}, {shelter.district}</p>
+                    <div className="text-xs font-semibold text-sky-600 mt-1">
+                      Occupancy: {shelter.occupantCount} / {shelter.capacity}
+                    </div>
+                  </div>
+                </Popup>
+              </Marker>
+            ))}
       </MapContainer>
     </div>
   );

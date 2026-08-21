@@ -46,6 +46,10 @@ app.use("/api/thresholds", require("./routes/thresholdroutes"));
 
 app.use("/api/locations", require("./routes/locationRoutes"));
 
+app.use('/api/shelters', require('./routes/shelterRoutes'));
+
+app.use('/api/analytics', require('./routes/analyticsRoutes'));
+
 app.use("/api/weather", require("./routes/weatherRoutes"));
 
 app.use("/api/auth", require("./routes/authRoutes"));

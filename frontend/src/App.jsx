@@ -32,10 +32,15 @@ import AdminVerificationPage from "./pages/admin/AdminVerificationPage";
 import SeverityThresholdPage from "./pages/admin/SeverityThresholdPage";
 
 // Map & GIS Pages
-import PublicMapPage from "./pages/PublicMapPage";
+import HomePage from "./pages/HomePage.jsx";
 import IncidentCommandMapPage from "./pages/admin/IncidentCommandMapPage";
 
 import TaskAssignmentBoard from "./pages/admin/TaskAssignmentBoard";
+
+// Shelter & Crisis Analytics Pages
+import ShelterDirectoryPage from "./pages/ShelterDirectoryPage";
+import AdminShelterManagement from "./pages/admin/AdminShelterManagement";
+import CrisisAnalyticsDashboard from "./pages/admin/CrisisAnalyticsDashboard";
 
 export default function App() {
   return (
@@ -48,13 +53,14 @@ export default function App() {
 
           <Route path="/register" element={<VolunteerRegistration />} />
 
-          <Route path="/" element={<Signup />} />
+          <Route path="/" element={<HomePage />} />
 
           {/* Public Disaster Reporting */}
           <Route path="/report" element={<DisasterReportPage />} />
 
-          {/* Map Pages */}
-          <Route path="/map" element={<PublicMapPage />} />
+          {/* Public Shelter Directory */}
+          <Route path="/shelters" element={<ShelterDirectoryPage />} />
+
 
           <Route
             path="/admin/map"
@@ -110,6 +116,16 @@ export default function App() {
             }
           />
 
+          {/* Crisis Analytics */}
+          <Route
+            path="/admin/analytics"
+            element={
+              <ProtectedRoute role="admin">
+                <CrisisAnalyticsDashboard />
+              </ProtectedRoute>
+            }
+          />
+
           {/* Campaign Analytics */}
           <Route
             path="/admin/campaign-analytics"
@@ -146,6 +162,16 @@ export default function App() {
             element={
               <ProtectedRoute role="admin">
                 <SeverityThresholdPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Shelter Management */}
+          <Route
+            path="/admin/shelters"
+            element={
+              <ProtectedRoute role="admin">
+                <AdminShelterManagement />
               </ProtectedRoute>
             }
           />

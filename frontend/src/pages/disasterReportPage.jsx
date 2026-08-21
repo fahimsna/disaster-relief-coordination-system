@@ -1,5 +1,6 @@
 // src/pages/DisasterReportPage.jsx
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
 import { DisasterFormSteps } from "../components/DisasterFormSteps.jsx";
 import { fetchCoordinatesOnSubmit } from "../utils/osmgeocode.js";
@@ -103,6 +104,14 @@ export default function DisasterReportPage() {
 
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white shadow-md rounded-2xl my-8">
+      {/* Back Button */}
+      <Link
+        to="/"
+        className="mb-4 inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-gray-800 transition"
+      >
+        <span>←</span> Back to Home
+      </Link>
+
       <h1 className="text-xl font-bold mb-6 text-gray-800">
         Report a Disaster Incident
       </h1>
