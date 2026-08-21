@@ -26,6 +26,10 @@ export default function AdminSidebar({ open, setOpen }) {
       path: "/admin/task-board",
     },
     {
+      name: "Stage Feed",
+      path: "/admin/stage-feed",
+    },
+    {
       name: "Weather",
       path: "/admin/weather",
     },
@@ -60,7 +64,7 @@ export default function AdminSidebar({ open, setOpen }) {
     {
       name: "Certificate Preview",
       path: "/admin/certificates",
-    }
+    },
   ];
 
   return (

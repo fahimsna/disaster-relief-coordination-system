@@ -31,8 +31,16 @@ const volunteerSchema = new mongoose.Schema(
     },
     assignmentStage: {
       type: String,
-      enum: ["none", "assigned", "deployed"], // "deployed" feeds into the future stage tracker (Dispatched -> ... -> Distributed)
+      enum: ["none", "assigned", "deployed"], // "deployed" is the entry point into the finer stage tracker below (Dispatched -> ... -> Distributed)
       default: "none",
+    },
+    // -- Relief Distribution Stage Tracker --
+    // fine-grained sub-stage inside "deployed"; null until the volunteer logs
+    // their first update, cleared again once the mission completes/is released
+    deliveryStage: {
+      type: String,
+      enum: ["Dispatched", "In Transit", "On Site", "Distributed"],
+      default: null,
     },
     // mission history isn't a real model/collection yet -- profile panel
     // just mocks this on the frontend for now (src/data/mockMissions.js)
