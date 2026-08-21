@@ -39,11 +39,9 @@ export const fetchCoordinatesOnSubmit = async (formData) => {
           q: searchQuery,
           format: 'json',
           limit: 1,
+          email: 'contact@disasterreport.local', // Identifies app via query param to comply with Nominatim policy
         },
-        headers: {
-          // Required by Nominatim API Terms of Service to prevent 403 blocks
-          'User-Agent': 'DisasterReportApp/1.0 (contact@disasterreport.local)',
-        },
+        // Removed custom headers: Browsers block setting "User-Agent" on client-side requests
       });
 
       if (res.data && Array.isArray(res.data) && res.data.length > 0) {
@@ -51,7 +49,6 @@ export const fetchCoordinatesOnSubmit = async (formData) => {
         const parsedLng = parseFloat(res.data[0].lon);
 
         if (!isNaN(parsedLat) && !isNaN(parsedLng)) {
-          console.log(`Geocoded successfully using: "${searchQuery}"`, { latitude: parsedLat, longitude: parsedLng });
           return { latitude: parsedLat, longitude: parsedLng };
         }
       }

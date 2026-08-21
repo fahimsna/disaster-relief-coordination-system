@@ -5,6 +5,8 @@ export default function MapFilterOverlay({
   setSeverityFilter,
   crisisFilter,
   setCrisisFilter,
+  showShelters,
+  setShowShelters,
   recentIncidents = []
 }) {
   const toggleSeverity = (level) => {
@@ -22,8 +24,24 @@ export default function MapFilterOverlay({
         <h3 className="font-bold text-sm text-gray-900">Filter and Legend</h3>
       </div>
 
-      {/* Severity Toggles */}
+      {/* Map Layers Toggles */}
       <div className="space-y-2">
+        <h4 className="font-semibold text-gray-600">Map Layers</h4>
+        <div className="flex justify-between items-center py-0.5">
+          <span className="flex items-center gap-1.5 font-medium text-slate-800">
+            🏠 Emergency Shelters
+          </span>
+          <input
+            type="checkbox"
+            checked={showShelters}
+            onChange={(e) => setShowShelters(e.target.checked)}
+            className="w-4 h-4 accent-sky-600 rounded cursor-pointer"
+          />
+        </div>
+      </div>
+
+      {/* Severity Toggles */}
+      <div className="space-y-2 border-t pt-3">
         <h4 className="font-semibold text-gray-600">Severity</h4>
         {['Low', 'Medium', 'Critical'].map((level) => (
           <div key={level} className="flex justify-between items-center py-0.5">

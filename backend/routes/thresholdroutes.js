@@ -1,9 +1,12 @@
 const router = require('express').Router();
 const c = require('../controllers/thresholdController');
-// If auth/admin middleware is required, import it like your team:
-// const { protect: auth, admin } = require('../middleware/authMiddleware');
+const { protect } = require('../middleware/authMiddleware');
+const admin = require('../middleware/adminMiddleware');
 
-router.get('/', c.getThresholds);   // View threshold settings
-router.put('/', c.updateThresholds); // Update threshold settings
+// Public route (accessible for frontend report thresholds)
+router.get('/', c.getThresholds);
+
+// Protected admin-only route
+router.put('/', protect, admin, c.updateThresholds);
 
 module.exports = router;

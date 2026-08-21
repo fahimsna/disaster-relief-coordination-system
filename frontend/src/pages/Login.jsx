@@ -30,7 +30,6 @@ export default function Login() {
       const user = await login(form.email, form.password);
 
       // Role based redirect
-
       if (user.role === "admin") {
         navigate("/admin/dashboard");
       } else {
@@ -46,6 +45,15 @@ export default function Login() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-brand-bg px-4">
       <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-sm">
+        
+        {/* Back Button */}
+        <Link
+          to="/"
+          className="mb-4 inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-brand-navy transition"
+        >
+          <span>←</span> Back to Home
+        </Link>
+
         <h1 className="text-lg font-bold text-brand-navy">Log In</h1>
 
         {error && (

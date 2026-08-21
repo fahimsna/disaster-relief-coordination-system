@@ -1,9 +1,19 @@
 // frontend/src/utils/reportService.js
-const API_BASE = 'http://localhost:8000/api';
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000') + '/api';
+
+/**
+ * Helper: Retrieve token and construct authorization headers
+ */
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('token');
+  return {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+};
 
 /**
  * Helper: Obtain browser geolocation wrapped in a Promise
- * For "Use My Location" button on public intake form
  */
 export const getCurrentLocation = () => {
   return new Promise((resolve, reject) => {
@@ -54,32 +64,63 @@ export const fetchPublicReports = async () => {
 };
 
 /**
- * Admin Overview: Fetch ALL reports (verified, unverified, rejected)
- * Supports query parameters for sorting & filtering
+ * Admin Overview: Fetch ALL reports (Requires Auth)
  */
 export const fetchAllReports = async (filters = {}) => {
   const queryParams = new URLSearchParams(filters).toString();
-  const response = await fetch(`${API_BASE}/reports?${queryParams}`);
+  const response = await fetch(`${API_BASE}/reports?${queryParams}`, {
+    headers: getAuthHeaders(),
+  });
+
   if (!response.ok) throw new Error('Failed to fetch report overview list');
   return response.json();
 };
 
 /**
- * Admin Detail View: Fetch a single report by ID
+ * Admin Detail View: Fetch a single report by ID (Requires Auth)
  */
 export const fetchReportById = async (reportId) => {
-  const response = await fetch(`${API_BASE}/reports/${reportId}`);
+  const response = await fetch(`${API_BASE}/reports/${reportId}`, {
+    headers: getAuthHeaders(),
+  });
+
   if (!response.ok) throw new Error('Failed to fetch report details');
   return response.json();
 };
 
 /**
- * Admin Action: Update report status ('verified' | 'rejected') or override severity
+ * Admin Action: Verify a report (Requires Auth)
+ */
+export const verifyReport = async (reportId) => {
+  const response = await fetch(`${API_BASE}/reports/${reportId}/verify`, {
+    method: 'PUT',
+    headers: getAuthHeaders(),
+  });
+
+  if (!response.ok) throw new Error('Failed to verify report');
+  return response.json();
+};
+
+/**
+ * Admin Action: Reject a report (Requires Auth)
+ */
+export const rejectReport = async (reportId) => {
+  const response = await fetch(`${API_BASE}/reports/${reportId}/reject`, {
+    method: 'PUT',
+    headers: getAuthHeaders(),
+  });
+
+  if (!response.ok) throw new Error('Failed to reject report');
+  return response.json();
+};
+
+/**
+ * Admin Action: General update report or severity override (Requires Auth)
  */
 export const updateReport = async (reportId, updateData) => {
   const response = await fetch(`${API_BASE}/reports/${reportId}`, {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders(),
     body: JSON.stringify(updateData),
   });
 
@@ -88,21 +129,24 @@ export const updateReport = async (reportId, updateData) => {
 };
 
 /**
- * Admin Settings: Fetch current rolling time window & severity count thresholds
+ * Admin Settings: Fetch threshold settings (Requires Auth)
  */
 export const fetchThresholdSettings = async () => {
-  const response = await fetch(`${API_BASE}/settings/thresholds`);
+  const response = await fetch(`${API_BASE}/settings/thresholds`, {
+    headers: getAuthHeaders(),
+  });
+
   if (!response.ok) throw new Error('Failed to fetch threshold settings');
   return response.json();
 };
 
 /**
- * Admin Settings: Update default severity calculation thresholds
+ * Admin Settings: Update threshold settings (Requires Auth)
  */
 export const updateThresholdSettings = async (settingsData) => {
   const response = await fetch(`${API_BASE}/settings/thresholds`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders(),
     body: JSON.stringify(settingsData),
   });
 
