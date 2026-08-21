@@ -21,6 +21,19 @@ const volunteerSchema = new mongoose.Schema(
       enum: ["available", "unavailable"],
       default: "available",
     },
+    // -- Task Assignment Board --
+    // kept separate from `status` above so the volunteer's own availability
+    // toggle doesn't get tangled up with admin dispatch actions.
+    assignedIncident: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "DisasterReport",
+      default: null,
+    },
+    assignmentStage: {
+      type: String,
+      enum: ["none", "assigned", "deployed"], // "deployed" feeds into the future stage tracker (Dispatched -> ... -> Distributed)
+      default: "none",
+    },
     // mission history isn't a real model/collection yet -- profile panel
     // just mocks this on the frontend for now (src/data/mockMissions.js)
   },

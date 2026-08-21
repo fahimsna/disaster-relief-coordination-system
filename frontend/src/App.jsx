@@ -35,6 +35,8 @@ import SeverityThresholdPage from "./pages/admin/SeverityThresholdPage";
 import PublicMapPage from "./pages/PublicMapPage";
 import IncidentCommandMapPage from "./pages/admin/IncidentCommandMapPage";
 
+import TaskAssignmentBoard from "./pages/admin/TaskAssignmentBoard";
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -124,6 +126,16 @@ export default function App() {
             element={
               <ProtectedRoute role="admin">
                 <AdminVerificationPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Volunteer Task Assignment Board */}
+          <Route
+            path="/admin/task-board"
+            element={
+              <ProtectedRoute role="admin">
+                <TaskAssignmentBoard />
               </ProtectedRoute>
             }
           />
