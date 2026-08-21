@@ -1,0 +1,163 @@
+[
+  {
+    "name": "Dhaka",
+    "districts": [
+      {
+        "name": "Dhaka",
+        "subdistricts": [
+          "Dhaka North City Corporation",
+          "Dhaka South City Corporation",
+          "Dhamrai Upazila",
+          "Dohar Upazila",
+          "Keraniganj Upazila",
+          "Nawabganj Upazila",
+          "Savar Upazila"
+        ]
+      },
+      {
+        "name": "Faridpur",
+        "subdistricts": [
+          "Alfadanga Upazila",
+          "Bhanga Upazila",
+          "Boalmari Upazila",
+          "Charbhadrasan Upazila",
+          "Faridpur Sadar Upazila",
+          "Madhukhali Upazila",
+          "Nagarkanda Upazila",
+          "Sadarpur Upazila",
+          "Saltha Upazila"
+        ]
+      },
+      {
+        "name": "Gazipur",
+        "subdistricts": [
+          "Gazipur Sadar Upazila",
+          "Kaliakair Upazila",
+          "Kaliganj Upazila",
+          "Kapasia Upazila",
+          "Sreepur Upazila"
+        ]
+      },
+      {
+        "name": "Gopalganj",
+        "subdistricts": [
+          "Gopalganj Sadar Upazila",
+          "Kashiani Upazila",
+          "Kotalipara Upazila",
+          "Muksudpur Upazila",
+          "Tungipara Upazila"
+        ]
+      },
+      {
+        "name": "Kishoreganj",
+        "subdistricts": [
+          "Austogram Upazila",
+          "Bajitpur Upazila",
+          "Bhairab Upazila",
+          "Hossainpur Upazila",
+          "Itna Upazila",
+          "Karimgonj Upazila",
+          "Katiadi Upazila",
+          "Kishoreganj Sadar Upazila",
+          "Kuliarchar Upazila",
+          "Mithamoin Upazila",
+          "Nikli Upazila",
+          "Pakundia Upazila",
+          "Tarail Upazila"
+        ]
+      },
+      {
+        "name": "Madaripur",
+        "subdistricts": [
+          "Kalkini Upazila",
+          "Madaripur Sadar Upazila",
+          "Rajoir Upazila",
+          "Shibchar Upazila",
+          "Dasar Upazila"
+        ]
+      },
+      {
+        "name": "Manikganj",
+        "subdistricts": [
+          "Daulatpur Upazila",
+          "Gior Upazila",
+          "Harirampur Upazila",
+          "Manikganj Sadar Upazila",
+          "Saturia Upazila",
+          "Shibaloy Upazila",
+          "Singair Upazila"
+        ]
+      },
+      {
+        "name": "Munshiganj",
+        "subdistricts": [
+          "Gajaria Upazila",
+          "Louhajanj Upazila",
+          "Munshiganj Sadar Upazila",
+          "Sirajdikhan Upazila",
+          "Sreenagar Upazila",
+          "Tongibari Upazila"
+        ]
+      },
+      {
+        "name": "Narayanganj",
+        "subdistricts": [
+          "Araihazar Upazila",
+          "Sonargaon Upazila",
+          "Narayanganj Sadar Upazila",
+          "Rupganj Upazila",
+          "Bandar Upazila"
+        ]
+      },
+      {
+        "name": "Narsingdi",
+        "subdistricts": [
+          "Belabo Upazila",
+          "Monohardi Upazila",
+          "Narsingdi Sadar Upazila",
+          "Palash Upazila",
+          "Raipura Upazila",
+          "Shibpur Upazila"
+        ]
+      },
+      {
+        "name": "Rajbari",
+        "subdistricts": [
+          "Baliakandi Upazila",
+          "Goalanda Upazila",
+          "Kalukhali Upazila",
+          "Pangsa Upazila",
+          "Rajbari Sadar Upazila"
+        ]
+      },
+      {
+        "name": "Shariatpur",
+        "subdistricts": [
+          "Bhedarganj Upazila",
+          "Damudya Upazila",
+          "Gosairhat Upazila",
+          "Naria Upazila",
+          "Shariatpur Sadar Upazila",
+          "Zajira Upazila"
+        ]
+      },
+      {
+        "name": "Tangail",
+        "subdistricts": [
+          "Basail Upazila",
+          "Bhuapur Upazila",
+          "Delduar Upazila",
+          "Dhanbari Upazila",
+          "Ghatail Upazila",
+          "Gopalpur Upazila",
+          "Kalihati Upazila",
+          "Madhupur Upazila",
+          "Mirzapur Upazila",
+          "Nagarpur Upazila",
+          "Sakhipur Upazila",
+          "Tangail Sadar Upazila"
+        ]
+      }
+    ]
+  }
+]

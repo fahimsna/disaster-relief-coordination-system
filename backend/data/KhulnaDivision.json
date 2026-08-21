@@ -1,0 +1,117 @@
+[
+  {
+    "name": "Khulna",
+    "districts": [
+      {
+        "name": "Bagerhat",
+        "subdistricts": [
+          "Chitalmari Upazila",
+          "Fakirhat Upazila",
+          "Kachua Upazila",
+          "Mollahat Upazila",
+          "Mongla Upazila",
+          "Morrelganj Upazila",
+          "Rampal Upazila",
+          "Sarankhola Upazila",
+          "Bagerhat Sadar Upazila"
+        ]
+      },
+      {
+        "name": "Chuadanga",
+        "subdistricts": [
+          "Alamdanga Upazila",
+          "Chuadanga Sadar Upazila",
+          "Damurhuda Upazila",
+          "Jibannagar Upazila"
+        ]
+      },
+      {
+        "name": "Jashore",
+        "subdistricts": [
+          "Abhaynagar Upazila",
+          "Bagherpara Upazila",
+          "Chougachha Upazila",
+          "Jhikargacha Upazila",
+          "Keshabpur Upazila",
+          "Jessore Sadar Upazila",
+          "Manirampur Upazila",
+          "Sharsha Upazila"
+        ]
+      },
+      {
+        "name": "Jhenaidah",
+        "subdistricts": [
+          "Harinakundu Upazila",
+          "Jhenaidah Sadar Upazila",
+          "Kaliganj Upazila",
+          "Kotchandpur Upazila",
+          "Moheshpur Upazila",
+          "Shailkupa Upazila"
+        ]
+      },
+      {
+        "name": "Khulna",
+        "subdistricts": [
+          "Khulna City Corporation",
+          "Botiaghata Upazila",
+          "Dakop Upazila",
+          "Dumuria Upazila",
+          "Koyra Upazila",
+          "Paikgasa Upazila",
+          "Fultola Upazila",
+          "Rupsha Upazila",
+          "Terokhada Upazila",
+          "Digholia Upazila"
+        ]
+      },
+      {
+        "name": "Kushtia",
+        "subdistricts": [
+          "Bheramara Upazila",
+          "Daulatpur Upazila",
+          "Khoksa Upazila",
+          "Kumarkhali Upazila",
+          "Kushtia Sadar Upazila",
+          "Mirpur Upazila"
+        ]
+      },
+      {
+        "name": "Magura",
+        "subdistricts": [
+          "Magura Sadar Upazila",
+          "Mohammadpur Upazila",
+          "Shalikha Upazila",
+          "Sreepur Upazila"
+        ]
+      },
+      {
+        "name": "Meherpur",
+        "subdistricts": [
+          "Gangni Upazila",
+          "Mujibnagar Upazila",
+          "Meherpur Sadar Upazila"
+        ]
+      },
+      {
+        "name": "Narail",
+        "subdistricts": [
+          "Kalia Upazila",
+          "Lohagara Upazila",
+          "Narail Sadar Upazila"
+        ]
+      },
+      {
+        "name": "Satkhira",
+        "subdistricts": [
+          "Assasuni Upazila",
+          "Debhata Upazila",
+          "Kalaroa Upazila",
+          "Kaliganj Upazila",
+          "Satkhira Sadar Upazila",
+          "Shyamnagar Upazila",
+          "Tala Upazila"
+        ]
+      }
+    ]
+  }
+]
