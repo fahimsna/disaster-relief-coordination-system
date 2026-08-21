@@ -144,7 +144,7 @@ exports.verifyReport = async (req, res) => {
   try {
     const report = await DisasterReport.findByIdAndUpdate(
       req.params.id,
-      { status: "Verified" },
+      { status: "verified" },
       { returnDocument: "after" },
     );
     if (!report) {
@@ -168,7 +168,7 @@ exports.rejectReport = async (req, res) => {
   try {
     const report = await DisasterReport.findByIdAndUpdate(
       req.params.id,
-      { status: "Rejected" },
+      { status: "rejected" },
       { returnDocument: "after" },
     );
     if (!report) {
@@ -209,7 +209,7 @@ exports.resolveReport = async (req, res) => {
   try {
     const report = await DisasterReport.findByIdAndUpdate(
       req.params.id,
-      { status: "Resolved" },
+      { status: "resolved" },
       { returnDocument: "after" },
     );
     if (!report) {
