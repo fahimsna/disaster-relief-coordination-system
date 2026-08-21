@@ -1,16 +1,20 @@
 const router = require("express").Router();
 const c = require("../controllers/reportController");
 const { protect } = require("../middleware/authMiddleware");
-const admin = require("../middleware/adminMiddleware"); // Adjust filename if named differently (e.g., admin.js)
+const admin = require("../middleware/adminMiddleware");
 
 // Public routes
 router.post("/", c.createReport);
 router.get("/", c.getAllReports);
 
-// Protected admin routes – must be BEFORE /:id
-router.get("/active", protect, admin, c.getActiveIncidents);
+// Map Clusters endpoint (Public or Protected based on your needs)
+router.get("/map-clusters", c.getMapClusters);
 
-// View report by ID – keep this LAST for specific IDs
+// Protected admin routes – MUST be placed BEFORE /:id to prevent route collisions
+router.get("/active", protect, admin, c.getActiveIncidents);
+router.put("/batch-resolve", protect, admin, c.batchResolve);
+
+// View report by ID – keep dynamic /:id routes AFTER all static string routes
 router.get("/:id", c.getReportById);
 
 router.put("/:id/verify", protect, admin, c.verifyReport);

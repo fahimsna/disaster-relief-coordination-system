@@ -7,21 +7,39 @@ import IncidentPopup from './IncidentPopup.jsx';
 import MapFilterOverlay from './MapFilterOverlay.jsx';
 import { useIncidents } from './useIncidents.js';
 
+const getAuthConfig = () => {
+  let token = localStorage.getItem('token') || localStorage.getItem('jwt');
+  if (!token) {
+    try {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      token = user.token || user.jwt || user.accessToken;
+    } catch (e) {
+      /* ignore JSON parse error */
+    }
+  }
+  return {
+    headers: {
+      Authorization: token ? `Bearer ${token}` : '',
+    },
+  };
+};
+
 function LiveIncidentMap({ isCoordinator = true }) {
   const {
     incidents,
     rawIncidents,
     loading,
     resolveIncident,
+    refetchIncidents,
     severityFilter,
     setSeverityFilter,
     crisisFilter,
     setCrisisFilter,
   } = useIncidents();
 
-  // State to hold active shelters and filter toggle
   const [shelters, setShelters] = useState([]);
   const [showShelters, setShowShelters] = useState(true);
+  const [batchLoading, setBatchLoading] = useState(false);
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
@@ -35,15 +53,38 @@ function LiveIncidentMap({ isCoordinator = true }) {
       }
     };
     fetchShelters();
-  }, []);
+  }, [API_BASE_URL]);
+
+  const handleBatchResolve = async (reportIds) => {
+    if (!reportIds || reportIds.length === 0) return;
+    setBatchLoading(true);
+    try {
+      await axios.put(
+        `${API_BASE_URL}/api/reports/batch-resolve`,
+        { reportIds },
+        getAuthConfig()
+      );
+      if (typeof refetchIncidents === 'function') {
+        await refetchIncidents();
+      } else {
+        window.location.reload();
+      }
+    } catch (err) {
+      console.error('Failed to batch resolve incidents:', err);
+      alert('Failed to resolve selected incidents. Please try again.');
+    } finally {
+      setBatchLoading(false);
+    }
+  };
 
   const defaultCenter = [23.6850, 90.3563];
+  const coordCounts = {};
 
   return (
     <div className="w-full h-[600px] rounded-2xl overflow-hidden relative border shadow-md bg-white">
-      {loading && (
+      {(loading || batchLoading) && (
         <div className="absolute inset-0 bg-white/80 z-[1001] flex items-center justify-center font-medium text-gray-600">
-          Loading Incident Map...
+          {batchLoading ? 'Batch resolving incidents...' : 'Loading Incident Map...'}
         </div>
       )}
 
@@ -75,7 +116,31 @@ function LiveIncidentMap({ isCoordinator = true }) {
           .map((incident, index) => {
             let lat = Number(incident.latitude);
             let lng = Number(incident.longitude);
+
             if (lat > 85 || lat < -85) [lat, lng] = [lng, lat];
+
+            // --- JITTERING LOGIC ---
+            const coordKey = `${lat.toFixed(4)}_${lng.toFixed(4)}`;
+            const occurrence = coordCounts[coordKey] || 0;
+            coordCounts[coordKey] = occurrence + 1;
+
+            if (occurrence > 0) {
+              const angle = occurrence * 0.8;
+              const radius = 0.00025 * Math.sqrt(occurrence);
+              lat += radius * Math.cos(angle);
+              lng += radius * Math.sin(angle);
+            }
+
+            // --- CLUSTER ID COLLECTION ---
+            // Find all active reports sharing the exact same district, subdistrict, and crisisType
+            const clusterReportIds = incidents
+              .filter(
+                (item) =>
+                  item.district === incident.district &&
+                  item.subdistrict === incident.subdistrict &&
+                  item.crisisType === incident.crisisType
+              )
+              .map((item) => item._id);
 
             return (
               <Marker
@@ -86,8 +151,10 @@ function LiveIncidentMap({ isCoordinator = true }) {
                 <Popup>
                   <IncidentPopup
                     incident={incident}
+                    clusterReportIds={clusterReportIds}
                     isCoordinator={isCoordinator}
                     onResolve={resolveIncident}
+                    onBatchResolve={handleBatchResolve}
                   />
                 </Popup>
               </Marker>
