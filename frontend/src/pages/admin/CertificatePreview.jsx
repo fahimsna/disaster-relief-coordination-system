@@ -14,7 +14,7 @@ const CertificatePreview = () => {
 
   const API_URL =
     import.meta.env.VITE_API_URL ||
-    "http://disaster-relief-coordination-system-five.vercel.app/api";
+    "https://disaster-relief-coordination-system-0z00.onrender.com/api";
 
   useEffect(() => {
     if (user?.role === "volunteer" || user?.role === "admin") {

@@ -1,7 +1,7 @@
 // frontend/src/utils/reportService.js
 const API_BASE =
   (import.meta.env.VITE_API_BASE_URL ||
-    "http://disaster-relief-coordination-system-five.vercel.app") + "/api";
+    "https://disaster-relief-coordination-system-0z00.onrender.com") + "/api";
 
 /**
  * Helper: Retrieve token and construct authorization headers

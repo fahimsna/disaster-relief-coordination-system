@@ -3,7 +3,7 @@ import axios from "axios";
 import { getReportStatus, formatDistrictField } from "../utils/formatters";
 
 const API_BASE =
-  "http://disaster-relief-coordination-system-five.vercel.app/api/reports";
+  "https://disaster-relief-coordination-system-0z00.onrender.com/api/reports";
 
 // Helper to retrieve token from localStorage (handles direct strings or nested user objects)
 const getAuthConfig = () => {

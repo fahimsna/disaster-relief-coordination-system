@@ -43,7 +43,7 @@ function LiveIncidentMap({ isCoordinator = true }) {
 
   const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL ||
-    "http://disaster-relief-coordination-system-five.vercel.app";
+    "https://disaster-relief-coordination-system-0z00.onrender.com";
 
   useEffect(() => {
     const fetchShelters = async () => {

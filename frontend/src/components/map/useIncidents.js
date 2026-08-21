@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 
 export function useIncidents(
-  apiUrl = "http://disaster-relief-coordination-system-five.vercel.app/api/reports",
+  apiUrl = "https://disaster-relief-coordination-system-0z00.onrender.com/api/reports",
 ) {
   const [incidents, setIncidents] = useState([]);
   const [loading, setLoading] = useState(true);

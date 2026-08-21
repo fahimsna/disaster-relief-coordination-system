@@ -4,7 +4,7 @@ import axios from "axios";
 // Set VITE_API_URL in your .env file (or in the deployment settings) if needed.
 const API_URL =
   import.meta.env.VITE_API_URL ||
-  "http://disaster-relief-coordination-system-five.vercel.app/api/auth";
+  "https://disaster-relief-coordination-system-0z00.onrender.com/api/auth";
 
 const api = axios.create({ baseURL: API_URL });
 
