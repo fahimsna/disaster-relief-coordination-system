@@ -13,13 +13,35 @@ const smsRoutes = require("./routes/smsRoutes");
 
 const app = express();
 
+// =====================================================
+// CORS
+// =====================================================
+
+const allowedOrigins = [
+  "http://localhost:5173",
+
+  // Current Vercel production/preview domains
+  "https://disaster-relief-coordination-system-five.vercel.app",
+  "https://disaster-relief-coordination-system-git-main-tasin7.vercel.app",
+  "https://disaster-relief-coordination-system-7q4h91fe6-tasin7.vercel.app",
+];
 
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "https://disaster-relief-coordination-system-five.vercel.app",
-    ],
+    origin: function (origin, callback) {
+      // Allow requests without an Origin header
+      // (Postman, server-to-server requests, etc.)
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      console.log("CORS blocked origin:", origin);
+      return callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
   }),
 );
@@ -40,7 +62,6 @@ app.use(
 // JSON BODY
 // =====================================================
 
-// All other routes use JSON
 app.use(express.json());
 
 // =====================================================
@@ -76,7 +97,6 @@ app.use("/api/sms", smsRoutes);
 app.use("/api/stage-updates", require("./routes/stageRoutes"));
 
 // =====================================================
-// MODULE 3
 // CAMPAIGN ANALYTICS
 // =====================================================
 
