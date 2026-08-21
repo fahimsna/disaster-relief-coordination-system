@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import IdUploadStep from "../components/IdUploadStep";
@@ -10,6 +10,23 @@ import api from "../api/axios";
 // the backend confirms the save (no more 'done' screen).
 export default function VolunteerRegistration() {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkRegistration = async () => {
+      try {
+        const response = await api.get("/volunteers/profile");
+        // If profile exists, user is already registered
+        navigate("/profile", { replace: true });
+      } catch (error) {
+        // 404 means no profile → stay on registration page
+        if (error.response?.status !== 404) {
+          console.error("Error checking registration:", error);
+        }
+      }
+    };
+
+    checkRegistration();
+  }, [navigate]);
 
   const [step, setStep] = useState("upload");
   const [isProcessing, setIsProcessing] = useState(false);

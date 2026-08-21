@@ -22,6 +22,14 @@ export default function AdminSidebar({ open, setOpen }) {
       path: "/admin/report-verification",
     },
     {
+      name: "Task Assignment Board",
+      path: "/admin/task-board",
+    },
+    {
+      name: "Weather",
+      path: "/admin/weather",
+    },
+    {
       name: "Severity Threshold",
       path: "/admin/severity-threshold",
     },

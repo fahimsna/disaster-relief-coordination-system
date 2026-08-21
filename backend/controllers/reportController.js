@@ -101,6 +101,27 @@ exports.getAllReports = async (req, res) => {
   }
 };
 
+// @desc    Get active, verified incidents for dispatch (Task Assignment Board)
+// @route   GET /api/reports/active
+exports.getActiveIncidents = async (req, res) => {
+  try {
+    // NOTE: verifyReport() below saves status as "Verified" (capital V), which
+    // doesn't match the schema enum ('verified' lowercase).
+    // Matching case-insensitively so this endpoint works either way.
+    const incidents = await DisasterReport.find({
+      status: { $regex: /^verified$/i },
+    }).sort({ createdAt: -1 });
+    res.json({ success: true, data: incidents });
+  } catch (error) {
+    res
+      .status(500)
+      .json({
+        message: "Failed to fetch active incidents",
+        error: error.message,
+      });
+  }
+};
+
 // @desc    Get single report by ID
 // @route   GET /api/reports/:id
 exports.getReportById = async (req, res) => {

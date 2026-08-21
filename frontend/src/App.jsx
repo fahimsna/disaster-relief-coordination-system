@@ -35,6 +35,8 @@ import SeverityThresholdPage from "./pages/admin/SeverityThresholdPage";
 import HomePage from "./pages/HomePage.jsx";
 import IncidentCommandMapPage from "./pages/admin/IncidentCommandMapPage";
 
+import TaskAssignmentBoard from "./pages/admin/TaskAssignmentBoard";
+
 // Shelter & Crisis Analytics Pages
 import ShelterDirectoryPage from "./pages/ShelterDirectoryPage";
 import AdminShelterManagement from "./pages/admin/AdminShelterManagement";
@@ -140,6 +142,16 @@ export default function App() {
             element={
               <ProtectedRoute role="admin">
                 <AdminVerificationPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Volunteer Task Assignment Board */}
+          <Route
+            path="/admin/task-board"
+            element={
+              <ProtectedRoute role="admin">
+                <TaskAssignmentBoard />
               </ProtectedRoute>
             }
           />
