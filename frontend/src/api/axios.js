@@ -6,6 +6,10 @@ const API_URL =
 
 const api = axios.create({
   baseURL: API_URL,
+  timeout: 30000,
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
 api.interceptors.request.use(
@@ -19,6 +23,22 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
+    return Promise.reject(error);
+  },
+);
+
+api.interceptors.response.use(
+  (response) => response,
+
+  (error) => {
+    if (error.code === "ECONNABORTED") {
+      console.error("API request timed out.");
+    }
+
+    if (!error.response) {
+      console.error("Cannot connect to backend:", error.message);
+    }
+
     return Promise.reject(error);
   },
 );
