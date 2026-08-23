@@ -1,8 +1,5 @@
 import axios from "axios";
-
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL ||
-  "https://disaster-relief-coordination-system-kmf2.onrender.com/api";
+import API_BASE_URL from "../config/api";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -17,6 +14,7 @@ api.interceptors.request.use(
     const token = localStorage.getItem("token");
 
     if (token) {
+      config.headers = config.headers || {};
       config.headers.Authorization = `Bearer ${token}`;
     }
 
