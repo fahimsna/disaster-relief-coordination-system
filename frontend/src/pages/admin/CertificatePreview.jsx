@@ -56,12 +56,12 @@ const CertificatePreview = () => {
   // =========================================================
 
   const downloadCertificate = async (volId, missId) => {
-    try {
-      if (!volId || !missId) {
-        toast.error("Volunteer ID and Mission ID are required");
-        return;
-      }
+    if (!volId || !missId) {
+      toast.error("Volunteer ID and Mission ID are required");
+      return;
+    }
 
+    try {
       setLoading(true);
 
       const response = await axios.get(
@@ -83,8 +83,7 @@ const CertificatePreview = () => {
       const link = document.createElement("a");
 
       link.href = url;
-
-      link.download = `certificate-${volId}-${Date.now()}.pdf`;
+      link.setAttribute("download", `certificate-${volId}-${Date.now()}.pdf`);
 
       document.body.appendChild(link);
 
@@ -111,89 +110,64 @@ const CertificatePreview = () => {
   // =========================================================
 
   const handleGenerate = () => {
-    if (!volunteerId.trim() || !missionId.trim()) {
+    if (!volunteerId || !missionId) {
       toast.error("Please enter both Volunteer ID and Mission ID");
       return;
     }
 
-    downloadCertificate(volunteerId.trim(), missionId.trim());
+    downloadCertificate(volunteerId, missionId);
   };
 
   // =========================================================
-  // CLOSE SIDEBAR WHEN CLICKING OVERLAY
+  // CLOSE SIDEBAR AFTER NAVIGATION
   // =========================================================
 
-  const closeMobileSidebar = () => {
+  const handleSidebarClose = () => {
     setSidebarOpen(false);
   };
 
   // =========================================================
-  // RENDER
+  // UI
   // =========================================================
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-[#F5F7FA]">
+    <div className="min-h-screen w-full overflow-x-hidden bg-[#F5F7FA]">
       {/* =====================================================
           NAVBAR
-          DO NOT MODIFY NAVBAR
+          DO NOT CHANGE SHARED NAVBAR
       ===================================================== */}
 
-      <div className="fixed inset-x-0 top-0 z-[100]">
+      <div className="fixed inset-x-0 top-0 z-[60] w-full">
         <Navbar setSidebarOpen={setSidebarOpen} />
       </div>
-
-      {/* =====================================================
-          MOBILE SIDEBAR OVERLAY
-      ===================================================== */}
-
-      {sidebarOpen && (
-        <button
-          type="button"
-          aria-label="Close sidebar"
-          onClick={closeMobileSidebar}
-          className="
-            fixed
-            inset-0
-            z-[110]
-            bg-black/40
-            md:hidden
-          "
-        />
-      )}
 
       {/* =====================================================
           SIDEBAR
 
           Desktop:
-          - Always visible
+          - Fixed
+          - Starts directly underneath navbar
           - 256px wide
 
           Mobile:
-          - Hidden by default
-          - Slides in when Navbar opens it
+          - AdminSidebar controls drawer behavior
+          - No separate mobile menu button
       ===================================================== */}
 
       <aside
-        className={`
+        className="
           fixed
           left-0
-          bottom-0
-          top-0
-          z-[120]
-          w-[256px]
-          bg-white
-          border-r
-          border-gray-200
-          transition-transform
-          duration-300
-          ease-in-out
-          md:translate-x-0
-          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
-        `}
+          top-16
+          z-50
+          hidden
+          h-[calc(100vh-4rem)]
+          w-64
+          overflow-hidden
+          lg:block
+        "
       >
-        <div className="h-full overflow-y-auto pt-16">
-          <AdminSidebar open={sidebarOpen} setOpen={setSidebarOpen} />
-        </div>
+        <AdminSidebar open={true} setOpen={handleSidebarClose} />
       </aside>
 
       {/* =====================================================
@@ -205,17 +179,18 @@ const CertificatePreview = () => {
           min-h-screen
           w-full
           pt-16
-          md:ml-[256px]
-          md:w-[calc(100%-256px)]
+          lg:ml-64
+          lg:w-[calc(100%-16rem)]
         "
       >
         <div
           className="
             w-full
-            px-4
+            px-3
             py-5
-            sm:px-6
+            sm:px-5
             sm:py-6
+            md:px-6
             lg:px-8
             lg:py-8
           "
@@ -224,7 +199,7 @@ const CertificatePreview = () => {
               PAGE HEADER
           ================================================= */}
 
-          <header className="mb-6 sm:mb-8">
+          <div className="mb-6 sm:mb-8">
             <h1
               className="
                 text-2xl
@@ -232,7 +207,6 @@ const CertificatePreview = () => {
                 leading-tight
                 text-gray-800
                 sm:text-3xl
-                lg:text-4xl
               "
             >
               🏅 Volunteer Completion Certificates
@@ -250,32 +224,30 @@ const CertificatePreview = () => {
             >
               Download certificates for completed missions.
             </p>
-          </header>
+          </div>
 
           {/* =================================================
-              ADMIN GENERATE
+              ADMIN GENERATE CERTIFICATE
           ================================================= */}
 
           {user?.role === "admin" && (
-            <section
+            <div
               className="
                 mb-6
                 w-full
-                rounded-2xl
-                border
-                border-gray-100
+                rounded-xl
                 bg-white
                 p-4
-                shadow-sm
+                shadow-lg
                 sm:p-6
               "
             >
               <h2
                 className="
+                  mb-4
                   text-lg
                   font-semibold
                   text-gray-800
-                  sm:text-xl
                 "
               >
                 Admin: Generate Certificate
@@ -283,20 +255,18 @@ const CertificatePreview = () => {
 
               <div
                 className="
-                  mt-5
                   grid
                   grid-cols-1
                   gap-4
-                  lg:grid-cols-2
+                  md:grid-cols-2
                 "
               >
                 {/* Volunteer ID */}
 
                 <div className="min-w-0">
                   <label
-                    htmlFor="volunteerId"
                     className="
-                      mb-2
+                      mb-1
                       block
                       text-sm
                       font-medium
@@ -307,22 +277,18 @@ const CertificatePreview = () => {
                   </label>
 
                   <input
-                    id="volunteerId"
                     type="text"
                     value={volunteerId}
                     onChange={(e) => setVolunteerId(e.target.value)}
                     className="
-                      block
                       w-full
                       min-w-0
                       rounded-lg
                       border
                       border-gray-300
-                      bg-white
                       px-3
                       py-2.5
                       text-sm
-                      text-gray-800
                       outline-none
                       transition
                       focus:border-blue-500
@@ -337,9 +303,8 @@ const CertificatePreview = () => {
 
                 <div className="min-w-0">
                   <label
-                    htmlFor="missionId"
                     className="
-                      mb-2
+                      mb-1
                       block
                       text-sm
                       font-medium
@@ -350,22 +315,18 @@ const CertificatePreview = () => {
                   </label>
 
                   <input
-                    id="missionId"
                     type="text"
                     value={missionId}
                     onChange={(e) => setMissionId(e.target.value)}
                     className="
-                      block
                       w-full
                       min-w-0
                       rounded-lg
                       border
                       border-gray-300
-                      bg-white
                       px-3
                       py-2.5
                       text-sm
-                      text-gray-800
                       outline-none
                       transition
                       focus:border-blue-500
@@ -378,11 +339,10 @@ const CertificatePreview = () => {
               </div>
 
               <button
-                type="button"
                 onClick={handleGenerate}
-                disabled={!volunteerId.trim() || !missionId.trim() || loading}
+                disabled={!volunteerId || !missionId || loading}
                 className="
-                  mt-5
+                  mt-4
                   w-full
                   rounded-lg
                   bg-blue-600
@@ -400,25 +360,23 @@ const CertificatePreview = () => {
               >
                 {loading ? "Generating..." : "Generate Certificate"}
               </button>
-            </section>
+            </div>
           )}
 
           {/* =================================================
-              CERTIFICATES
+              CERTIFICATES CARD
           ================================================= */}
 
-          <section
+          <div
             className="
               w-full
               overflow-hidden
-              rounded-2xl
-              border
-              border-gray-100
+              rounded-xl
               bg-white
-              shadow-sm
+              shadow-lg
             "
           >
-            {/* Header */}
+            {/* Card Header */}
 
             <div
               className="
@@ -429,81 +387,55 @@ const CertificatePreview = () => {
                 sm:px-6
               "
             >
-              <div
+              <h2
                 className="
-                  flex
-                  flex-col
-                  gap-2
-                  sm:flex-row
-                  sm:items-center
-                  sm:justify-between
+                  text-lg
+                  font-semibold
+                  text-gray-800
+                  sm:text-xl
                 "
               >
-                <h2
-                  className="
-                    text-lg
-                    font-semibold
-                    text-gray-800
-                    sm:text-xl
-                  "
-                >
-                  Available Certificates
-                </h2>
-
-                <span
-                  className="
-                    w-fit
-                    rounded-full
-                    bg-gray-100
-                    px-3
-                    py-1
-                    text-xs
-                    font-semibold
-                    text-gray-600
-                  "
-                >
-                  {certificates.length} certificate
-                  {certificates.length === 1 ? "" : "s"}
-                </span>
-              </div>
+                Available Certificates ({certificates.length})
+              </h2>
             </div>
 
             {/* =================================================
-                EMPTY
+                EMPTY STATE
             ================================================= */}
 
             {certificates.length === 0 ? (
               <div
                 className="
-                  px-5
-                  py-12
+                  px-4
+                  py-10
                   text-center
-                  text-gray-500
                   sm:px-8
                 "
               >
-                <p className="mb-3 text-4xl">📄</p>
+                <p className="mb-2 text-4xl">📄</p>
 
-                <p className="font-medium">No certificates available.</p>
+                <p className="font-medium text-gray-500">
+                  No certificates available.
+                </p>
 
-                <p className="mt-1 text-sm">
+                <p className="mt-1 text-sm text-gray-500">
                   Complete a mission to earn a certificate.
                 </p>
               </div>
             ) : (
               <>
                 {/* =================================================
-                    DESKTOP / TABLET
+                    DESKTOP / TABLET TABLE
                 ================================================= */}
 
                 <div className="hidden overflow-x-auto md:block">
-                  <table className="w-full min-w-[700px] divide-y divide-gray-200">
+                  <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
                         <th
                           className="
                             whitespace-nowrap
-                            px-5
+                            px-6
                             py-3
                             text-left
                             text-xs
@@ -511,7 +443,6 @@ const CertificatePreview = () => {
                             uppercase
                             tracking-wider
                             text-gray-500
-                            lg:px-6
                           "
                         >
                           Mission
@@ -520,7 +451,7 @@ const CertificatePreview = () => {
                         <th
                           className="
                             whitespace-nowrap
-                            px-5
+                            px-6
                             py-3
                             text-left
                             text-xs
@@ -528,7 +459,6 @@ const CertificatePreview = () => {
                             uppercase
                             tracking-wider
                             text-gray-500
-                            lg:px-6
                           "
                         >
                           Serial Number
@@ -537,7 +467,7 @@ const CertificatePreview = () => {
                         <th
                           className="
                             whitespace-nowrap
-                            px-5
+                            px-6
                             py-3
                             text-left
                             text-xs
@@ -545,7 +475,6 @@ const CertificatePreview = () => {
                             uppercase
                             tracking-wider
                             text-gray-500
-                            lg:px-6
                           "
                         >
                           Date
@@ -554,7 +483,7 @@ const CertificatePreview = () => {
                         <th
                           className="
                             whitespace-nowrap
-                            px-5
+                            px-6
                             py-3
                             text-right
                             text-xs
@@ -562,7 +491,6 @@ const CertificatePreview = () => {
                             uppercase
                             tracking-wider
                             text-gray-500
-                            lg:px-6
                           "
                         >
                           Action
@@ -576,58 +504,20 @@ const CertificatePreview = () => {
                           key={cert.id}
                           className="transition hover:bg-gray-50"
                         >
-                          <td
-                            className="
-                              max-w-[300px]
-                              break-words
-                              px-5
-                              py-4
-                              text-sm
-                              text-gray-900
-                              lg:px-6
-                            "
-                          >
-                            {cert.missionName || "Mission unavailable"}
+                          <td className="px-6 py-4 text-sm text-gray-900">
+                            {cert.missionName || "Unknown mission"}
                           </td>
 
-                          <td
-                            className="
-                              max-w-[220px]
-                              break-all
-                              px-5
-                              py-4
-                              text-sm
-                              text-gray-500
-                              lg:px-6
-                            "
-                          >
+                          <td className="px-6 py-4 text-sm text-gray-500">
                             {cert.serialNumber || "N/A"}
                           </td>
 
-                          <td
-                            className="
-                              whitespace-nowrap
-                              px-5
-                              py-4
-                              text-sm
-                              text-gray-500
-                              lg:px-6
-                            "
-                          >
+                          <td className="px-6 py-4 text-sm text-gray-500">
                             {cert.date || "N/A"}
                           </td>
 
-                          <td
-                            className="
-                              whitespace-nowrap
-                              px-5
-                              py-4
-                              text-right
-                              lg:px-6
-                            "
-                          >
+                          <td className="px-6 py-4 text-right">
                             <button
-                              type="button"
                               onClick={() =>
                                 downloadCertificate(cert.volunteerId, cert.id)
                               }
@@ -641,7 +531,7 @@ const CertificatePreview = () => {
                                 px-4
                                 py-2
                                 text-sm
-                                font-semibold
+                                font-medium
                                 text-white
                                 transition
                                 hover:bg-[#0097A0]
@@ -659,12 +549,12 @@ const CertificatePreview = () => {
                 </div>
 
                 {/* =================================================
-                    MOBILE
+                    MOBILE CERTIFICATE CARDS
                 ================================================= */}
 
-                <div className="block space-y-4 p-4 md:hidden">
+                <div className="space-y-3 p-3 md:hidden">
                   {certificates.map((cert) => (
-                    <article
+                    <div
                       key={cert.id}
                       className="
                         w-full
@@ -673,94 +563,48 @@ const CertificatePreview = () => {
                         border-gray-200
                         bg-white
                         p-4
+                        shadow-sm
                       "
                     >
-                      {/* Top */}
+                      {/* Mission */}
 
-                      <div
-                        className="
-                          flex
-                          items-start
-                          justify-between
-                          gap-3
-                        "
-                      >
-                        <div className="min-w-0 flex-1">
-                          <p
-                            className="
-                              text-[11px]
-                              font-semibold
-                              uppercase
-                              tracking-wider
-                              text-gray-400
-                            "
-                          >
-                            Mission
-                          </p>
+                      <div className="min-w-0">
+                        <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
+                          Mission
+                        </p>
 
-                          <h3
-                            className="
-                              mt-1
-                              break-words
-                              text-base
-                              font-semibold
-                              text-gray-800
-                            "
-                          >
-                            {cert.missionName || "Mission unavailable"}
-                          </h3>
-                        </div>
-
-                        <div
-                          className="
-                            flex
-                            h-10
-                            w-10
-                            shrink-0
-                            items-center
-                            justify-center
-                            rounded-full
-                            bg-[#00ADB5]/10
-                            text-lg
-                          "
-                        >
-                          🏅
-                        </div>
+                        <p className="mt-1 break-words text-sm font-semibold text-gray-900">
+                          {cert.missionName || "Unknown mission"}
+                        </p>
                       </div>
 
                       {/* Details */}
 
                       <div
                         className="
-                          mt-5
+                          mt-4
                           grid
                           grid-cols-1
-                          gap-4
-                          border-t
-                          border-gray-100
-                          pt-4
+                          gap-3
+                          sm:grid-cols-2
                         "
                       >
                         <div className="min-w-0">
-                          <p className="text-xs text-gray-400">Serial Number</p>
+                          <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
+                            Serial Number
+                          </p>
 
-                          <p
-                            className="
-                              mt-1
-                              break-all
-                              text-sm
-                              font-medium
-                              text-gray-700
-                            "
-                          >
+                          <p className="mt-1 break-all text-sm text-gray-600">
                             {cert.serialNumber || "N/A"}
                           </p>
                         </div>
 
-                        <div>
-                          <p className="text-xs text-gray-400">Date</p>
+                        <div className="min-w-0">
+                          <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
+                            Date
+                          </p>
 
-                          <p className="mt-1 text-sm font-medium text-gray-700">
+                          <p className="mt-1 text-sm text-gray-600">
                             {cert.date || "N/A"}
                           </p>
                         </div>
@@ -769,13 +613,12 @@ const CertificatePreview = () => {
                       {/* Download */}
 
                       <button
-                        type="button"
                         onClick={() =>
                           downloadCertificate(cert.volunteerId, cert.id)
                         }
                         disabled={loading}
                         className="
-                          mt-5
+                          mt-4
                           flex
                           w-full
                           items-center
@@ -795,14 +638,25 @@ const CertificatePreview = () => {
                       >
                         {loading ? "Downloading..." : "⬇ Download Certificate"}
                       </button>
-                    </article>
+                    </div>
                   ))}
                 </div>
               </>
             )}
-          </section>
+          </div>
         </div>
       </main>
+
+      {/* =====================================================
+          MOBILE SIDEBAR
+
+          Keep the shared AdminSidebar responsible for its
+          own mobile drawer. No extra menu button.
+      ===================================================== */}
+
+      <div className="lg:hidden">
+        <AdminSidebar open={sidebarOpen} setOpen={setSidebarOpen} />
+      </div>
     </div>
   );
 };
