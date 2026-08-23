@@ -16,39 +16,57 @@ const app = express();
 const PORT = process.env.PORT || 8000;
 
 // =====================================================
-// CORS
+// CORS CONFIGURATION
 // =====================================================
 
+// Allowed frontend origins
 const allowedOrigins = [
+  // Local development
   "http://localhost:5173",
+  "http://127.0.0.1:5173",
 
-  // Vercel production domain
+  // ---------------------------------------------------
+  // CURRENT VERCEL PRODUCTION DOMAIN
+  // ---------------------------------------------------
+  "https://disaster-relief-coordination-system-steel.vercel.app",
+
+  // ---------------------------------------------------
+  // Vercel production / older domains
+  // ---------------------------------------------------
   "https://disaster-relief-coordination-system.vercel.app",
 
-  // Vercel Git/production domain
   "https://disaster-relief-coordination-system-git-main-tasin7.vercel.app",
 
-  // Vercel deployment domains
   "https://disaster-relief-coordination-system-five.vercel.app",
+
   "https://disaster-relief-coordination-system-7q4h91fe6-tasin7.vercel.app",
+
   "https://disaster-relief-coordination-system-bdvrdarga-tasin7.vercel.app",
 ];
+
+// =====================================================
+// CORS
+// =====================================================
 
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow requests such as Postman/server-to-server requests
+      // Allow requests without an Origin header.
+      // Example: Postman, curl, server-to-server requests.
       if (!origin) {
         return callback(null, true);
       }
 
+      // Allow known frontend origins
       if (allowedOrigins.includes(origin)) {
+        console.log("CORS allowed:", origin);
         return callback(null, true);
       }
 
+      // Block unknown origins
       console.log("CORS blocked:", origin);
 
-      return callback(null, false);
+      return callback(new Error(`CORS blocked for origin: ${origin}`), false);
     },
 
     credentials: true,
@@ -62,11 +80,16 @@ app.use(
       "Accept",
       "Authorization",
     ],
+
+    optionsSuccessStatus: 204,
   }),
 );
 
-// Explicitly handle CORS preflight requests
+// =====================================================
+// EXPLICIT PREFLIGHT HANDLING
+// =====================================================
 
+app.options("*", cors());
 
 // =====================================================
 // HEALTH CHECK
@@ -130,11 +153,10 @@ app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/campaigns", require("./routes/campaignRoutes"));
 
 app.use("/api/donations", require("./routes/donationRoutes"));
+
 app.use("/api/notifications", require("./routes/notificationRoutes"));
 
 app.use("/api/fund-allocations", fundAllocationRoutes);
-
-app.use("/api/notifications", require("./routes/notificationRoutes"));
 
 app.use("/api/sms", smsRoutes);
 
