@@ -1,99 +1,103 @@
 import { Navigate, useLocation } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 import { useAuth } from "../context/AuthContext";
 
-function decodeJwtPayload(token) {
-  if (!token) {
-    return null;
-  }
+function isTokenValid(token) {
+  if (!token) return false;
 
   try {
-    const parts = token.split(".");
+    const decoded = jwtDecode(token);
 
-    if (parts.length !== 3) {
-      return null;
-    }
+    if (!decoded?.exp) return false;
 
-    const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
-
-    const padded = base64.padEnd(
-      base64.length + ((4 - (base64.length % 4)) % 4),
-      "=",
-    );
-
-    return JSON.parse(atob(padded));
+    return Date.now() < decoded.exp * 1000;
   } catch {
-    return null;
-  }
-}
-
-function isTokenValid(token) {
-  const payload = decodeJwtPayload(token);
-
-  if (!payload?.exp) {
     return false;
   }
-
-  return Date.now() < payload.exp * 1000;
 }
 
 export default function ProtectedRoute({ children, role }) {
   const { token, user, authReady, logout } = useAuth();
-
   const location = useLocation();
 
   /*
-   * AuthContext is still restoring the session.
+   * CRITICAL:
    *
-   * NEVER redirect during this phase.
+   * Do not redirect while AuthContext is restoring
+   * localStorage authentication state.
+   *
+   * This prevents:
+   *
+   * login -> admin route -> login -> admin route
    */
   if (!authReady) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
           <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-gray-800" />
-
-          <p className="text-sm text-gray-600">Checking session...</p>
+          <p className="text-sm text-gray-600">
+            Checking authentication...
+          </p>
         </div>
       </div>
     );
   }
 
   /*
-   * No valid authentication.
+   * No valid token.
    */
-  if (!token || !user || !isTokenValid(token)) {
+  if (!isTokenValid(token)) {
+    if (token || user) {
+      logout(false);
+    }
+
+    return (
+      <Navigate
+        to="/login"
+        replace
+        state={{ from: location.pathname }}
+      />
+    );
+  }
+
+  /*
+   * Token exists but user information is missing.
+   */
+  if (!user) {
     logout(false);
 
     return (
       <Navigate
         to="/login"
         replace
-        state={{
-          from: location.pathname,
-        }}
+        state={{ from: location.pathname }}
       />
     );
   }
 
   /*
-   * Route requires a specific role.
+   * Role-protected route.
    */
   if (role && user.role !== role) {
     /*
-     * Admin user attempting to access a non-admin role route.
+     * Admin users should stay inside the admin area.
      */
     if (user.role === "admin") {
-      if (location.pathname === "/admin/dashboard") {
-        return children;
+      if (location.pathname !== "/admin/dashboard") {
+        return <Navigate to="/admin/dashboard" replace />;
       }
 
-      return <Navigate to="/admin/dashboard" replace />;
+      return children;
     }
 
     /*
-     * Non-admin attempting to access an admin route.
+     * Non-admin users cannot access admin routes.
      */
-    return <Navigate to="/dashboard" replace />;
+    if (location.pathname !== "/dashboard") {
+      return <Navigate to="/dashboard" replace />;
+    }
+
+    return children;
   }
 
   return children;

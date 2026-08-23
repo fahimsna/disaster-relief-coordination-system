@@ -20,16 +20,10 @@ function decodeJwtPayload(token) {
   try {
     const parts = token.split(".");
 
-    if (parts.length !== 3) {
-      return null;
-    }
+    if (parts.length !== 3) return null;
 
     const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
-
-    const padded = base64.padEnd(
-      base64.length + ((4 - (base64.length % 4)) % 4),
-      "=",
-    );
+    const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), "=");
 
     return JSON.parse(atob(padded));
   } catch {
@@ -40,26 +34,18 @@ function decodeJwtPayload(token) {
 function isTokenValid(token) {
   const payload = decodeJwtPayload(token);
 
-  if (!payload) {
-    return false;
-  }
-
-  if (!payload.exp) {
-    return false;
-  }
+  if (!payload?.exp) return false;
 
   return Date.now() < payload.exp * 1000;
 }
 
 function readStoredUser() {
   try {
-    const storedUser = localStorage.getItem(USER_KEY);
+    const stored = localStorage.getItem(USER_KEY);
 
-    if (!storedUser) {
-      return null;
-    }
+    if (!stored) return null;
 
-    return JSON.parse(storedUser);
+    return JSON.parse(stored);
   } catch {
     localStorage.removeItem(USER_KEY);
     return null;
@@ -71,11 +57,21 @@ function clearStoredSession() {
   localStorage.removeItem(USER_KEY);
 }
 
-function getInitialSession() {
+function getStoredSession() {
   const storedToken = localStorage.getItem(TOKEN_KEY);
+
+  if (!isTokenValid(storedToken)) {
+    clearStoredSession();
+
+    return {
+      token: null,
+      user: null,
+    };
+  }
+
   const storedUser = readStoredUser();
 
-  if (!storedToken || !storedUser || !isTokenValid(storedToken)) {
+  if (!storedUser) {
     clearStoredSession();
 
     return {
@@ -93,58 +89,40 @@ function getInitialSession() {
 export function AuthProvider({ children }) {
   const navigate = useNavigate();
 
-  const [session, setSession] = useState(getInitialSession);
+  const [session, setSession] = useState(() => getStoredSession());
   const [authReady, setAuthReady] = useState(false);
 
-  const { token, user } = session;
+  const token = session.token;
+  const user = session.user;
 
   /*
-   * Authentication initialization.
+   * Restore authentication once when the application starts.
    *
-   * We deliberately wait one render cycle before ProtectedRoute
-   * starts making redirect decisions.
+   * ProtectedRoute must never redirect before this finishes.
    */
   useEffect(() => {
-    const storedToken = localStorage.getItem(TOKEN_KEY);
-    const storedUser = readStoredUser();
+    const restored = getStoredSession();
 
-    if (!storedToken || !storedUser || !isTokenValid(storedToken)) {
-      clearStoredSession();
-
-      setSession({
-        token: null,
-        user: null,
-      });
-    }
-
+    setSession(restored);
     setAuthReady(true);
   }, []);
 
   const persistSession = useCallback((data) => {
     if (!data?.token || !data?.user) {
-      throw new Error(
-        "Authentication succeeded but the server returned an invalid session.",
-      );
+      throw new Error("Invalid authentication response from server.");
     }
 
-    const nextToken = data.token;
-    const nextUser = data.user;
-
-    localStorage.setItem(TOKEN_KEY, nextToken);
-    localStorage.setItem(USER_KEY, JSON.stringify(nextUser));
+    localStorage.setItem(TOKEN_KEY, data.token);
+    localStorage.setItem(USER_KEY, JSON.stringify(data.user));
 
     setSession({
-      token: nextToken,
-      user: nextUser,
+      token: data.token,
+      user: data.user,
     });
   }, []);
 
   const login = useCallback(
     async (email, password) => {
-      if (!email?.trim() || !password) {
-        throw new Error("Email and password are required.");
-      }
-
       const response = await loginRequest({
         email: email.trim().toLowerCase(),
         password,
@@ -153,9 +131,7 @@ export function AuthProvider({ children }) {
       const data = response?.data;
 
       if (!data?.token || !data?.user) {
-        throw new Error(
-          "Login succeeded but the server returned an invalid session.",
-        );
+        throw new Error("Login response did not contain a valid session.");
       }
 
       persistSession(data);
@@ -172,7 +148,7 @@ export function AuthProvider({ children }) {
 
       if (!data?.token || !data?.user) {
         throw new Error(
-          "Registration succeeded but the server returned an invalid session.",
+          "Registration response did not contain a valid session.",
         );
       }
 
@@ -193,9 +169,7 @@ export function AuthProvider({ children }) {
       });
 
       if (redirect) {
-        navigate("/login", {
-          replace: true,
-        });
+        navigate("/login", { replace: true });
       }
     },
     [navigate],
@@ -205,9 +179,7 @@ export function AuthProvider({ children }) {
    * Automatically clear an expired JWT.
    */
   useEffect(() => {
-    if (!token) {
-      return undefined;
-    }
+    if (!token) return undefined;
 
     const payload = decodeJwtPayload(token);
 
@@ -227,9 +199,7 @@ export function AuthProvider({ children }) {
       logout(false);
     }, remaining);
 
-    return () => {
-      window.clearTimeout(timer);
-    };
+    return () => window.clearTimeout(timer);
   }, [token, logout]);
 
   /*
@@ -241,24 +211,9 @@ export function AuthProvider({ children }) {
         return;
       }
 
-      const nextToken = localStorage.getItem(TOKEN_KEY);
-      const nextUser = readStoredUser();
+      const restored = getStoredSession();
 
-      if (!nextToken || !nextUser || !isTokenValid(nextToken)) {
-        clearStoredSession();
-
-        setSession({
-          token: null,
-          user: null,
-        });
-
-        return;
-      }
-
-      setSession({
-        token: nextToken,
-        user: nextUser,
-      });
+      setSession(restored);
     };
 
     window.addEventListener("storage", handleStorage);
@@ -273,9 +228,7 @@ export function AuthProvider({ children }) {
       token,
       user,
       authReady,
-
-      isAuthenticated: Boolean(token && user && isTokenValid(token)),
-
+      isAuthenticated: Boolean(token && user),
       login,
       signup,
       logout,
@@ -283,7 +236,11 @@ export function AuthProvider({ children }) {
     [token, user, authReady, login, signup, logout],
   );
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 export function useAuth() {
