@@ -14,9 +14,9 @@ dispatch, donation management, and emergency alerting for disasters in Banglades
 
 | Member | Name                | Owns                                                                              |
 | ------ | ------------------- | --------------------------------------------------------------------------------- |
-| M1     | Ibnul Ahsan Mayukh  | Disaster intake, live map, `server.js`, `App.jsx`, auth                           |
+| M1     | Ibnul Ahsan Mayukh  | Disaster intake, live map                          |
 | M2     | Zihadul Islam Tasin | Volunteer registration/profile, weather safety tracker, task board, stage tracker |
-| M3     | Fahim Shahriar Nur  | Donation campaigns, Stripe payments, campaign analytics                           |
+| M3     | Fahim Shahriar Nur  | Donation campaigns, Stripe payments, campaign analytics , auth                           |
 | M4     | Ifaz Ahanaf Zaman   | Alerts, SMS/email notifications, PDF certificates                                 |
 
 ---
