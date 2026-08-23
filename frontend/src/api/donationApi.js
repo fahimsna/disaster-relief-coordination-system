@@ -1,53 +1,32 @@
-import axios from "axios";
+import api from "./axios";
 
-const API_URL =
-  import.meta.env.VITE_DONATION_API_URL ||
-  "https://disaster-relief-coordination-system-kmf2.onrender.com/api/donations";
-
-const api = axios.create({
-  baseURL: API_URL,
-});
-
-// =====================================================
-// CREATE STRIPE CHECKOUT SESSION
-// =====================================================
-
-export const createCheckoutSession = (data, token) =>
-  api.post("/checkout", data, {
+export const createCheckoutSession = (data, token) => {
+  return api.post("/donations/checkout", data, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
+};
 
-// =====================================================
-// GET LOGGED-IN USER'S DONATION HISTORY
-// =====================================================
-
-export const getMyDonations = (token) =>
-  api.get("/my", {
+export const getMyDonations = (token) => {
+  return api.get("/donations/my", {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
+};
 
-// =====================================================
-// GET DONATION RECEIPT
-// =====================================================
-
-export const getDonationReceipt = (sessionId, token) =>
-  api.get(`/receipt/${sessionId}`, {
+export const getDonationReceipt = (sessionId, token) => {
+  return api.get(`/donations/receipt/${sessionId}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
+};
 
-// =====================================================
-// MARK CANCELLED DONATION AS FAILED
-// =====================================================
-
-export const cancelDonation = (sessionId, token) =>
-  api.put(
-    `/cancel/${sessionId}`,
+export const cancelDonation = (sessionId, token) => {
+  return api.put(
+    `/donations/cancel/${sessionId}`,
     {},
     {
       headers: {
@@ -55,5 +34,6 @@ export const cancelDonation = (sessionId, token) =>
       },
     },
   );
+};
 
 export default api;
