@@ -22,8 +22,14 @@ function decodeJwtPayload(token) {
 
     if (parts.length !== 3) return null;
 
-    const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
-    const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), "=");
+    const base64 = parts[1]
+      .replace(/-/g, "+")
+      .replace(/_/g, "/");
+
+    const padded = base64.padEnd(
+      base64.length + ((4 - (base64.length % 4)) % 4),
+      "=",
+    );
 
     return JSON.parse(atob(padded));
   } catch {
@@ -57,7 +63,7 @@ function clearStoredSession() {
   localStorage.removeItem(USER_KEY);
 }
 
-function getStoredSession() {
+function restoreSession() {
   const storedToken = localStorage.getItem(TOKEN_KEY);
 
   if (!isTokenValid(storedToken)) {
@@ -89,19 +95,18 @@ function getStoredSession() {
 export function AuthProvider({ children }) {
   const navigate = useNavigate();
 
-  const [session, setSession] = useState(() => getStoredSession());
+  const [session, setSession] = useState(() => restoreSession());
   const [authReady, setAuthReady] = useState(false);
 
   const token = session.token;
   const user = session.user;
 
   /*
-   * Restore authentication once when the application starts.
-   *
-   * ProtectedRoute must never redirect before this finishes.
+   * Restore the session before ProtectedRoute is allowed
+   * to make any redirect decision.
    */
   useEffect(() => {
-    const restored = getStoredSession();
+    const restored = restoreSession();
 
     setSession(restored);
     setAuthReady(true);
@@ -131,7 +136,9 @@ export function AuthProvider({ children }) {
       const data = response?.data;
 
       if (!data?.token || !data?.user) {
-        throw new Error("Login response did not contain a valid session.");
+        throw new Error(
+          "Login response did not contain a valid authentication session.",
+        );
       }
 
       persistSession(data);
@@ -148,7 +155,7 @@ export function AuthProvider({ children }) {
 
       if (!data?.token || !data?.user) {
         throw new Error(
-          "Registration response did not contain a valid session.",
+          "Registration response did not contain a valid authentication session.",
         );
       }
 
@@ -176,7 +183,7 @@ export function AuthProvider({ children }) {
   );
 
   /*
-   * Automatically clear an expired JWT.
+   * Automatically remove an expired JWT.
    */
   useEffect(() => {
     if (!token) return undefined;
@@ -203,7 +210,7 @@ export function AuthProvider({ children }) {
   }, [token, logout]);
 
   /*
-   * Synchronize login/logout between browser tabs.
+   * Keep multiple browser tabs synchronized.
    */
   useEffect(() => {
     const handleStorage = (event) => {
@@ -211,9 +218,7 @@ export function AuthProvider({ children }) {
         return;
       }
 
-      const restored = getStoredSession();
-
-      setSession(restored);
+      setSession(restoreSession());
     };
 
     window.addEventListener("storage", handleStorage);
