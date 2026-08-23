@@ -15,6 +15,7 @@ export default function Navbar({ setSidebarOpen }) {
   })();
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const getDashboardPath = () => {
     const role = user?.role?.toLowerCase();
@@ -32,10 +33,31 @@ export default function Navbar({ setSidebarOpen }) {
     }
   };
 
+  const handleMenuToggle = () => {
+    const nextState = !menuOpen;
+
+    setMenuOpen(nextState);
+
+    if (setSidebarOpen) {
+      setSidebarOpen(nextState);
+    }
+  };
+
+  const handleCloseMenu = () => {
+    setMenuOpen(false);
+
+    if (setSidebarOpen) {
+      setSidebarOpen(false);
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+
     setDropdownOpen(false);
+    handleCloseMenu();
+
     navigate("/login");
   };
 
@@ -50,15 +72,20 @@ export default function Navbar({ setSidebarOpen }) {
           {setSidebarOpen && (
             <button
               type="button"
-              onClick={() => setSidebarOpen(true)}
+              onClick={handleMenuToggle}
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-xl leading-none text-white transition hover:bg-white/10 active:bg-white/20 md:hidden"
-              aria-label="Open menu"
+              aria-label={menuOpen ? "Close menu" : "Open menu"}
+              aria-expanded={menuOpen}
             >
-              ☰
+              {menuOpen ? "✕" : "☰"}
             </button>
           )}
 
-          <Link to="/" className="flex min-w-0 items-center gap-2 text-white">
+          <Link
+            to="/"
+            onClick={handleCloseMenu}
+            className="flex min-w-0 items-center gap-2 text-white"
+          >
             <span className="flex h-8 shrink-0 items-center rounded-md bg-[#00b4d8] px-2 text-[10px] font-black tracking-wide text-white shadow-sm sm:h-9 sm:px-2.5 sm:text-xs">
               DRRCS
             </span>
@@ -76,15 +103,18 @@ export default function Navbar({ setSidebarOpen }) {
         <div className="flex min-w-0 flex-1 justify-center px-1 sm:px-3">
           <Link
             to="/report"
+            onClick={handleCloseMenu}
             className="group flex min-w-0 max-w-full items-center justify-center gap-1.5 rounded-full bg-linear-to-r from-amber-500 to-orange-500 px-3 py-2 text-[10px] font-extrabold text-white shadow-lg shadow-amber-500/20 transition hover:from-amber-400 hover:to-orange-400 active:scale-[0.98] sm:gap-2.5 sm:px-5 sm:text-sm"
           >
             <span className="relative flex h-2 w-2 shrink-0 sm:h-2.5 sm:w-2.5">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75" />
+
               <span className="relative inline-flex h-full w-full rounded-full bg-white" />
             </span>
 
             <span className="truncate">
               <span className="sm:hidden">⚠️ Emergency</span>
+
               <span className="hidden sm:inline">⚠️ Report Emergency</span>
             </span>
           </Link>
@@ -101,6 +131,7 @@ export default function Navbar({ setSidebarOpen }) {
 
               <Link
                 to={getDashboardPath()}
+                onClick={handleCloseMenu}
                 className="hidden rounded-lg bg-[#00b4d8] px-3 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-[#0097b3] sm:block sm:text-sm"
               >
                 Dashboard
@@ -123,7 +154,7 @@ export default function Navbar({ setSidebarOpen }) {
 
                 {dropdownOpen && (
                   <>
-                    {/* Mobile/desktop click-away layer */}
+                    {/* Click-away layer */}
 
                     <button
                       type="button"
@@ -149,7 +180,10 @@ export default function Navbar({ setSidebarOpen }) {
 
                       <Link
                         to={getDashboardPath()}
-                        onClick={() => setDropdownOpen(false)}
+                        onClick={() => {
+                          setDropdownOpen(false);
+                          handleCloseMenu();
+                        }}
                         className="block px-4 py-3 text-sm font-semibold transition hover:bg-gray-100 active:bg-gray-200 sm:py-2.5 sm:text-xs"
                       >
                         Dashboard
@@ -160,7 +194,10 @@ export default function Navbar({ setSidebarOpen }) {
                       {user?.role === "volunteer" && (
                         <Link
                           to="/profile"
-                          onClick={() => setDropdownOpen(false)}
+                          onClick={() => {
+                            setDropdownOpen(false);
+                            handleCloseMenu();
+                          }}
                           className="block px-4 py-3 text-sm transition hover:bg-gray-100 active:bg-gray-200 sm:py-2.5 sm:text-xs"
                         >
                           Profile
@@ -189,6 +226,7 @@ export default function Navbar({ setSidebarOpen }) {
             <div className="flex items-center gap-1 sm:gap-2">
               <Link
                 to="/login"
+                onClick={handleCloseMenu}
                 className="rounded-lg px-2 py-2 text-[11px] font-medium text-white/90 transition hover:bg-white/10 hover:text-white sm:px-3 sm:text-sm"
               >
                 Login
@@ -196,6 +234,7 @@ export default function Navbar({ setSidebarOpen }) {
 
               <Link
                 to="/signup"
+                onClick={handleCloseMenu}
                 className="rounded-lg border border-white/20 bg-white/10 px-2.5 py-2 text-[11px] font-medium text-white shadow-sm transition hover:bg-white/20 sm:px-3 sm:text-sm"
               >
                 Sign Up
