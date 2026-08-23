@@ -1,4 +1,3 @@
-const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 
 const ensureAdmin = async () => {
@@ -9,7 +8,7 @@ const ensureAdmin = async () => {
 
     if (!adminEmail || !adminPassword) {
       console.warn(
-        "ADMIN_EMAIL or ADMIN_PASSWORD is missing. Admin auto-creation skipped.",
+        "ADMIN_EMAIL or ADMIN_PASSWORD is missing. Admin initialization skipped.",
       );
       return;
     }
@@ -18,19 +17,26 @@ const ensureAdmin = async () => {
       throw new Error("ADMIN_PASSWORD must contain at least 6 characters.");
     }
 
-    let admin = await User.findOne({
-      email: adminEmail,
-    });
+    let admin = await User.findOne({ email: adminEmail });
+
+    /*
+     * IMPORTANT:
+     *
+     * User.js already hashes passwords inside its Mongoose
+     * pre("save") hook.
+     *
+     * Therefore DO NOT bcrypt.hash() here.
+     */
 
     if (!admin) {
-      const hashedPassword = await bcrypt.hash(adminPassword, 10);
-
-      admin = await User.create({
+      admin = new User({
         name: adminName,
         email: adminEmail,
-        password: hashedPassword,
+        password: adminPassword,
         role: "admin",
       });
+
+      await admin.save();
 
       console.log(`Production admin created: ${adminEmail}`);
       return;
@@ -38,21 +44,35 @@ const ensureAdmin = async () => {
 
     let changed = false;
 
+    /*
+     * Guarantee admin privileges.
+     */
     if (admin.role !== "admin") {
       admin.role = "admin";
       changed = true;
     }
 
+    /*
+     * Keep the configured admin name synchronized.
+     */
     if (admin.name !== adminName) {
       admin.name = adminName;
       changed = true;
     }
 
-    const passwordMatches = await bcrypt.compare(adminPassword, admin.password);
+    /*
+     * Verify configured password.
+     *
+     * If it doesn't match, assigning the plaintext password is
+     * intentional because User.js hashes it during save().
+     */
+    const passwordMatches = await admin.matchPassword(adminPassword);
 
     if (!passwordMatches) {
       admin.password = adminPassword;
       changed = true;
+
+      console.log(`Admin password synchronized: ${adminEmail}`);
     }
 
     if (changed) {
