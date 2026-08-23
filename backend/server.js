@@ -19,20 +19,19 @@ const PORT = process.env.PORT || 8000;
 // CORS CONFIGURATION
 // =====================================================
 
-// Allowed frontend origins
 const allowedOrigins = [
   // Local development
   "http://localhost:5173",
   "http://127.0.0.1:5173",
 
-  // ---------------------------------------------------
+  // ===================================================
   // CURRENT VERCEL PRODUCTION DOMAIN
-  // ---------------------------------------------------
+  // ===================================================
   "https://disaster-relief-coordination-system-steel.vercel.app",
 
-  // ---------------------------------------------------
-  // Vercel production / older domains
-  // ---------------------------------------------------
+  // ===================================================
+  // OTHER VERCEL DOMAINS
+  // ===================================================
   "https://disaster-relief-coordination-system.vercel.app",
 
   "https://disaster-relief-coordination-system-git-main-tasin7.vercel.app",
@@ -51,13 +50,13 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow requests without an Origin header.
-      // Example: Postman, curl, server-to-server requests.
+      // Allow requests with no Origin header.
+      // This includes Postman, curl, and server-to-server requests.
       if (!origin) {
         return callback(null, true);
       }
 
-      // Allow known frontend origins
+      // Allow registered frontend origins
       if (allowedOrigins.includes(origin)) {
         console.log("CORS allowed:", origin);
         return callback(null, true);
@@ -84,12 +83,6 @@ app.use(
     optionsSuccessStatus: 204,
   }),
 );
-
-// =====================================================
-// EXPLICIT PREFLIGHT HANDLING
-// =====================================================
-
-app.options("*", cors());
 
 // =====================================================
 // HEALTH CHECK
@@ -134,34 +127,49 @@ app.use(express.json());
 // API ROUTES
 // =====================================================
 
+// Reports
 app.use("/api/reports", require("./routes/reportRoutes"));
 
+// Volunteers
 app.use("/api/volunteers", require("./routes/volunteerRoutes"));
 
+// Severity thresholds
 app.use("/api/thresholds", require("./routes/thresholdroutes"));
 
+// Locations
 app.use("/api/locations", require("./routes/locationRoutes"));
 
+// Shelters
 app.use("/api/shelters", require("./routes/shelterRoutes"));
 
+// Analytics
 app.use("/api/analytics", require("./routes/analyticsRoutes"));
 
+// Weather
 app.use("/api/weather", require("./routes/weatherRoutes"));
 
+// Authentication
 app.use("/api/auth", require("./routes/authRoutes"));
 
+// Campaigns
 app.use("/api/campaigns", require("./routes/campaignRoutes"));
 
+// Donations
 app.use("/api/donations", require("./routes/donationRoutes"));
 
+// Notifications
 app.use("/api/notifications", require("./routes/notificationRoutes"));
 
+// Fund allocations
 app.use("/api/fund-allocations", fundAllocationRoutes);
 
+// SMS
 app.use("/api/sms", smsRoutes);
 
+// Stage updates
 app.use("/api/stage-updates", require("./routes/stageRoutes"));
 
+// Campaign analytics
 app.use("/api/campaign-analytics", require("./routes/campaignAnalyticsRoutes"));
 
 // =====================================================
