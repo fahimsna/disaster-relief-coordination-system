@@ -1,5 +1,5 @@
-const DisasterReport = require("../models/disasterReport");
-const Threshold = require("../models/thresholdConfig"); // Import your threshold config model
+const DisasterReport = require('../models/disasterReport');
+const ThresholdConfig = require('../models/thresholdConfig');
 
 // @desc    Create a new disaster report & auto-calculate severity in rolling window
 // @route   POST /api/reports
